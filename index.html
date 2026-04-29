@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EdgeLeak — Poker Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Cabinet+Grotesk:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0b;--s1:#111114;--s2:#17171b;--s3:#1e1e24;
+  --border:#2a2a35;--border2:#35354a;
+  --blue:#4f8ef7;--blue2:#3a7be8;--blueglow:rgba(79,142,247,.15);
+  --green:#34d399;--greenglow:rgba(52,211,153,.12);
+  --amber:#fbbf24;--ambglow:rgba(251,191,36,.1);
+  --red:#f87171;--redglow:rgba(248,113,113,.1);
+  --purple:#a78bfa;--purglow:rgba(167,139,250,.12);
+  --text:#f1f1f3;--t2:#9898aa;--t3:#555565;
+  --r:8px;--r2:12px;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-size:14px;line-height:1.5}
+
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.main-area{flex:1;overflow-y:auto;background:var(--bg)}
+
+.brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.brand-name{font-size:17px;font-weight:900;letter-spacing:-.4px}
+.brand-name .b{color:var(--blue)}
+.brand-tag{font-family:'DM Mono',monospace;font-size:9px;color:var(--t3);margin-top:2px;letter-spacing:.8px}
+
+.nav-section{padding:12px 10px 4px}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--t3);padding:0 8px;margin-bottom:6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);cursor:pointer;transition:all .12s;color:var(--t2);font-size:13px;font-weight:500;border:1px solid transparent}
+.nav-item:hover{background:var(--s2);color:var(--text)}
+.nav-item.active{background:var(--s2);color:var(--text);border-color:var(--border)}
+.nav-item svg{width:16px;height:16px;opacity:.6;flex-shrink:0}
+.nav-item.active svg{opacity:1}
+
+.sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
+.plan-badge{background:linear-gradient(135deg,var(--blue2),var(--purple));border-radius:var(--r);padding:10px 12px}
+.plan-badge .pt{font-size:11px;font-weight:700;color:#fff;letter-spacing:.3px}
+.plan-badge .ps{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px}
+
+.page{display:none;padding:32px 36px;max-width:900px}
+.page.active{display:block}
+.page-head{margin-bottom:28px}
+.page-head h1{font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px}
+.page-head p{font-size:13px;color:var(--t2)}
+
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);padding:20px 22px;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:600;letter-spacing:.6px;color:var(--t2);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';width:3px;height:12px;border-radius:2px;background:var(--blue);display:block}
+
+.field{margin-bottom:14px}
+.field-label{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px;letter-spacing:.3px}
+input[type=text],input[type=number],textarea,select{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--blue)}
+textarea{resize:vertical;min-height:130px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.65}
+select option{background:var(--s2)}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:none;font-family:'Cabinet Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .12s;letter-spacing:-.1px}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:var(--blue2);transform:translateY(-1px)}
+.btn-blue:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-green{background:var(--green);color:#000}
+.btn-green:hover{opacity:.88;transform:translateY(-1px)}
+.btn-amber{background:var(--amber);color:#000}
+.btn-amber:hover{opacity:.88;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2);background:var(--s2)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px}
+.stat-label{font-size:11px;color:var(--t2);font-weight:500;margin-bottom:6px;letter-spacing:.3px}
+.stat-val{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.stat-sub{font-size:11px;color:var(--t3);margin-top:3px}
+.stat-card.blue .stat-val{color:var(--blue)}
+.stat-card.green .stat-val{color:var(--green)}
+.stat-card.amber .stat-val{color:var(--amber)}
+.stat-card.red .stat-val{color:var(--red)}
+
+.loader{display:none;margin:16px 0}
+.loader.on{display:block}
+.lbar{height:2px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.lfill{height:100%;border-radius:2px;animation:lf 1.8s ease-in-out infinite}
+.lfill.blue{background:var(--blue)}.lfill.green{background:var(--green)}.lfill.amber{background:var(--amber)}.lfill.purple{background:var(--purple)}
+@keyframes lf{0%{width:0;margin-left:0}50%{width:55%;margin-left:22%}100%{width:0;margin-left:100%}}
+.ltxt{font-size:11px;color:var(--t2);font-family:'DM Mono',monospace}
+.blink{animation:bl 1s step-end infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:0}}
+
+.res{display:none;margin-top:18px}
+.res.on{display:block}
+.res-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.res-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.live{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.tag{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:4px;font-weight:500}
+.tag-g{background:var(--greenglow);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.tag-b{background:var(--blueglow);color:var(--blue);border:1px solid rgba(79,142,247,.2)}
+.tag-a{background:var(--ambglow);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.tag-r{background:var(--redglow);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.tag-p{background:var(--purglow);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+
+.block{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;border-left:3px solid var(--border2)}
+.block.red{border-left-color:var(--red)}.block.blue{border-left-color:var(--blue)}.block.green{border-left-color:var(--green)}.block.purple{border-left-color:var(--purple)}.block.amber{border-left-color:var(--amber)}
+.block-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-bottom:7px}
+.block-body{font-family:'DM Mono',monospace;font-size:12px;line-height:1.75;color:var(--t2);white-space:pre-wrap}
+
+.err-box{display:none;background:var(--redglow);border:1px solid rgba(248,113,113,.2);border-radius:var(--r);padding:12px 14px;color:var(--red);font-family:'DM Mono',monospace;font-size:11px;margin-top:12px}
+.err-box.on{display:block}
+
+.range-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;margin:14px 0}
+.rc{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:8.5px;font-weight:500;cursor:default;transition:transform .1s;border:1px solid transparent}
+.rc:hover{transform:scale(1.12);z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.rc.R{background:rgba(79,142,247,.22);color:var(--blue);border-color:rgba(79,142,247,.35)}
+.rc.C{background:rgba(52,211,153,.15);color:var(--green);border-color:rgba(52,211,153,.25)}
+.rc.M{background:rgba(167,139,250,.15);color:var(--purple);border-color:rgba(167,139,250,.25)}
+.rc.F{background:var(--s2);color:var(--t3);border-color:var(--border)}
+.range-legend{display:flex;gap:14px;flex-wrap:wrap}
+.rl{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2)}
+.rl-dot{width:8px;height:8px;border-radius:2px}
+
+.chat-wrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);padding:16px;min-height:220px;max-height:340px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.cmsg{display:flex;gap:9px;align-items:flex-start}
+.cavatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px}
+.cmsg.ai .cavatar{background:var(--purglow);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+.cmsg.user .cavatar{background:var(--blueglow);color:var(--blue);border:1px solid rgba(79,142,247,.2)}
+.cbubble{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;font-size:13px;line-height:1.65;color:var(--t2);max-width:92%}
+.cmsg.user{flex-direction:row-reverse}
+.cmsg.user .cbubble{background:rgba(79,142,247,.06);border-color:rgba(79,142,247,.15);color:var(--text)}
+.typing-row{display:none;align-items:center;gap:6px;font-size:11px;color:var(--t3);padding:0 4px;margin-bottom:8px}
+.typing-row.on{display:flex}
+.tdot{width:4px;height:4px;border-radius:50%;background:var(--t3);animation:td .9s ease-in-out infinite}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.chat-row{display:flex;gap:8px}
+.chat-in{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s}
+.chat-in:focus{border-color:var(--purple)}
+.qq-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.qq{background:transparent;border:1px solid var(--border);color:var(--t2);font-family:'Cabinet Grotesk',sans-serif;font-size:11px;font-weight:500;padding:5px 11px;border-radius:20px;cursor:pointer;transition:all .12s}
+.qq:hover{border-color:var(--purple);color:var(--purple);background:var(--purglow)}
+
+.chart-area{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.chart-svg{width:100%;height:140px;display:block}
+
+.jtable{width:100%;border-collapse:collapse;font-size:12px}
+.jtable th{text-align:left;padding:8px 12px;font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--border)}
+.jtable td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--t2)}
+.jtable tr:hover td{background:var(--s2)}
+.jtable .pos{color:var(--green)}.jtable .neg{color:var(--red)}
+
+.ev-big{font-size:28px;font-weight:700;letter-spacing:-.5px;margin:8px 0}
+.ev-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.ev-row:last-child{border:none}
+
+.quiz-card{background:var(--s2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px}
+.quiz-q{font-size:15px;font-weight:600;line-height:1.5;margin-bottom:16px}
+.quiz-opts{display:flex;flex-direction:column;gap:8px}
+.quiz-opt{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;cursor:pointer;font-size:13px;color:var(--t2);transition:all .12s;text-align:left;font-family:'Cabinet Grotesk',sans-serif;width:100%}
+.quiz-opt:hover{border-color:var(--blue);color:var(--text)}
+.quiz-opt.correct{border-color:var(--green);background:var(--greenglow);color:var(--green)}
+.quiz-opt.wrong{border-color:var(--red);background:var(--redglow);color:var(--red)}
+.quiz-expl{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.65;margin-top:10px;display:none}
+.quiz-expl.on{display:block}
+.quiz-score{font-family:'DM Mono',monospace;font-size:13px;color:var(--t2);margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="sidebar">
+  <div class="brand">
+    <div class="brand-name">edge<span class="b">leak</span></div>
+    <div class="brand-tag">POKER INTELLIGENCE</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Tools</div>
+    <div class="nav-item active" onclick="goTo('analyzer',this)">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Hand Analyzer
+    </div>
+    <div class="nav-item" onclick="goTo('ranges',this)">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Range Explorer
+    </div>
+    <div class="nav-item" onclick="goTo('coach',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M2 3a1 1 0 011-1h10a1 1 0 011 1v7a1 1 0 01-1 1H9l-3 2v-2H3a1 1 0 01-1-1V3z" stroke="currentColor" stroke-width="1.2"/></svg>
+      AI Coach
+    </div>
+    <div class="nav-item" onclick="goTo('quiz',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 9V8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11" r=".6" fill="currentColor"/></svg>
+      Quiz Training
+    </div>
+    <div class="nav-item" onclick="goTo('ev',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M2 14L6 8l3 3 2-4 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      EV Calculator
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Tracking</div>
+    <div class="nav-item" onclick="goTo('bankroll',this)">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      Bankroll
+    </div>
+    <div class="nav-item" onclick="goTo('journal',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 2h8l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/><path d="M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Journal
+    </div>
+    <div class="nav-item" onclick="goTo('stats',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M2 12V8M6 12V5M10 12V7M14 12V3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Stats
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="plan-badge">
+      <div class="pt">EdgeLeak Pro</div>
+      <div class="ps">All features unlocked</div>
+    </div>
+  </div>
+</div>
+
+<div class="main-area">
+
+<!-- ANALYZER -->
+<div class="page active" id="page-analyzer">
+  <div class="page-head"><h1>Hand Analyzer</h1><p>Paste your PokerStars hand history for an instant AI breakdown of your leaks.</p></div>
+  <div class="card">
+    <div class="card-title">Hand History</div>
+    <textarea id="handInput" placeholder="PokerStars Hand #234567890: Hold'em No Limit ($1/$2 USD)...&#10;&#10;Paste one or more hands here."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-blue" id="abtn" onclick="analyzeHand()">Analyze hand</button>
+      <button class="btn btn-ghost" onclick="loadSample()">Load example</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('handInput').value='';document.getElementById('ares').classList.remove('on');document.getElementById('aerr').classList.remove('on')">Clear</button>
+    </div>
+  </div>
+  <div class="loader" id="aload"><div class="lbar"><div class="lfill blue"></div></div><div class="ltxt">Analyzing hand<span class="blink">_</span></div></div>
+  <div class="err-box" id="aerr"></div>
+  <div class="res" id="ares">
+    <div class="res-header"><div class="res-title"><div class="live"></div>Analysis complete</div><div class="tag tag-g" id="ascore">—</div></div>
+    <div id="ablocks"></div>
+  </div>
+</div>
+
+<!-- RANGES -->
+<div class="page" id="page-ranges">
+  <div class="page-head"><h1>Range Explorer</h1><p>GTO-accurate ranges for any format, position and situation.</p></div>
+  <div class="card">
+    <div class="card-title">Parameters</div>
+    <div class="g3" style="margin-bottom:12px">
+      <div class="field"><div class="field-label">Format</div>
+        <select id="rf"><option>Cash Game 6-max</option><option>Cash Game 9-max</option><option>MTT</option><option>Spin &amp; Go</option><option>Zoom</option><option>PLO Cash</option></select></div>
+      <div class="field"><div class="field-label">Position</div>
+        <select id="rp"><option>UTG</option><option>UTG+1</option><option>MP</option><option>HJ</option><option>CO</option><option selected>BTN</option><option>SB</option><option>BB</option></select></div>
+      <div class="field"><div class="field-label">Situation</div>
+        <select id="rs"><option>RFI (Open)</option><option>vs RFI — Call</option><option>vs RFI — 3-Bet</option><option>3-Bet Pot IP</option><option>3-Bet Pot OOP</option><option>SRP Flop IP</option><option>SRP Flop OOP</option></select></div>
+    </div>
+    <div class="g2">
+      <div class="field"><div class="field-label">Stack depth</div>
+        <select id="rst"><option>20 BB (short)</option><option>50 BB</option><option selected>100 BB</option><option>150 BB (deep)</option></select></div>
+      <div class="field"><div class="field-label">Level</div>
+        <select id="rlv"><option>Beginner</option><option selected>Intermediate</option><option>Advanced GTO</option></select></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-amber" id="rbtn" onclick="getRange()">Generate range</button></div>
+  </div>
+  <div class="loader" id="rload"><div class="lbar"><div class="lfill amber"></div></div><div class="ltxt">Computing GTO range<span class="blink">_</span></div></div>
+  <div class="err-box" id="rerr"></div>
+  <div class="res" id="rres">
+    <div class="res-header"><div class="res-title"><div class="live" style="background:var(--amber);box-shadow:0 0 8px var(--amber)"></div><span id="rtitle">Range</span></div><div class="tag tag-a" id="rchip">—</div></div>
+    <div class="range-grid" id="rgrid"></div>
+    <div class="range-legend">
+      <div class="rl"><div class="rl-dot" style="background:rgba(79,142,247,.4)"></div>Raise / Open</div>
+      <div class="rl"><div class="rl-dot" style="background:rgba(52,211,153,.3)"></div>Call</div>
+      <div class="rl"><div class="rl-dot" style="background:rgba(167,139,250,.3)"></div>Mixed</div>
+      <div class="rl"><div class="rl-dot" style="background:var(--s2)"></div>Fold</div>
+    </div>
+    <div class="block purple" style="margin-top:12px"><div class="block-lbl">Explanation</div><div class="block-body" id="rexpl"></div></div>
+  </div>
+</div>
+
+<!-- COACH -->
+<div class="page" id="page-coach">
+  <div class="page-head"><h1>AI Coach</h1><p>Ask anything — strategy, bankroll, mental game, GTO, tournaments.</p></div>
+  <div class="qq-row">
+    <button class="qq" onclick="askQ(this.textContent)">Bankroll management rules?</button>
+    <button class="qq" onclick="askQ(this.textContent)">Kelly Criterion explained</button>
+    <button class="qq" onclick="askQ(this.textContent)">How to stop tilting?</button>
+    <button class="qq" onclick="askQ(this.textContent)">3-bet ranges MTT</button>
+    <button class="qq" onclick="askQ(this.textContent)">GTO vs exploitative?</button>
+    <button class="qq" onclick="askQ(this.textContent)">Study routine for poker</button>
+  </div>
+  <div class="chat-wrap" id="cchat">
+    <div class="cmsg ai">
+      <div class="cavatar">EL</div>
+      <div class="cbubble">Hey. I'm your EdgeLeak AI coach.<br><br>Ask me anything about poker — strategy, bankroll, mental game, GTO concepts, hand reviews.<br><br>Let's work on your game.</div>
+    </div>
+  </div>
+  <div class="typing-row" id="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>&nbsp;Coach is typing...</div>
+  <div class="chat-row">
+    <input class="chat-in" id="cin" placeholder="Ask your question..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendChat()}">
+    <button class="btn btn-blue" id="csend" onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="page" id="page-quiz">
+  <div class="page-head"><h1>Quiz Training</h1><p>Test your poker knowledge across all key concepts.</p></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="quiz-score" id="qscore">Score: 0 / 0</div>
+    <div style="display:flex;gap:8px">
+      <select id="qtopic" style="font-size:12px;padding:7px 10px"><option value="GTO">GTO</option><option value="Bankroll">Bankroll</option><option value="Ranges">Ranges</option><option value="Mental Game">Mental Game</option><option value="Math">Math</option></select>
+      <button class="btn btn-blue" onclick="loadQuiz()" style="font-size:12px;padding:8px 14px">New question</button>
+    </div>
+  </div>
+  <div class="loader" id="qload"><div class="lbar"><div class="lfill purple"></div></div><div class="ltxt">Loading question<span class="blink">_</span></div></div>
+  <div class="err-box" id="qerr"></div>
+  <div id="quiz-area"></div>
+</div>
+
+<!-- EV CALCULATOR -->
+<div class="page" id="page-ev">
+  <div class="page-head"><h1>EV Calculator</h1><p>Calculate the expected value of any poker decision.</p></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Inputs</div>
+      <div class="field"><div class="field-label">Pot size (BB)</div><input type="number" id="ev-pot" value="100" oninput="calcEV()"></div>
+      <div class="field"><div class="field-label">Bet to call (BB)</div><input type="number" id="ev-bet" value="50" oninput="calcEV()"></div>
+      <div class="field"><div class="field-label">Our equity (%)</div><input type="number" id="ev-eq" value="35" oninput="calcEV()"></div>
+      <div class="field"><div class="field-label">Fold equity if we bet (%)</div><input type="number" id="ev-fe" value="40" oninput="calcEV()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Results</div>
+      <div style="margin-bottom:4px;font-size:11px;color:var(--t2)">EV of calling</div>
+      <div class="ev-big" id="evcall">—</div>
+      <div class="ev-row"><span style="color:var(--t2)">Pot odds required</span><span id="evpotodds" style="color:var(--text)">—</span></div>
+      <div class="ev-row"><span style="color:var(--t2)">Your equity</span><span id="evequity" style="color:var(--text)">—</span></div>
+      <div class="ev-row"><span style="color:var(--t2)">Decision</span><span id="evdecision">—</span></div>
+      <div style="margin-top:14px;margin-bottom:4px;font-size:11px;color:var(--t2)">EV of betting (bluff)</div>
+      <div class="ev-big" id="evbet">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- BANKROLL -->
+<div class="page" id="page-bankroll">
+  <div class="page-head"><h1>Bankroll Tracker</h1><p>Track your sessions and monitor your growth over time.</p></div>
+  <div class="g4" style="margin-bottom:18px">
+    <div class="stat-card blue"><div class="stat-label">Total Bankroll</div><div class="stat-val" id="br-total">$1,000</div><div class="stat-sub">Current</div></div>
+    <div class="stat-card green"><div class="stat-label">All-time profit</div><div class="stat-val" id="br-profit">$0</div><div class="stat-sub">Net result</div></div>
+    <div class="stat-card amber"><div class="stat-label">Sessions</div><div class="stat-val" id="br-sessions">0</div><div class="stat-sub">Played</div></div>
+    <div class="stat-card"><div class="stat-label">Win rate</div><div class="stat-val" id="br-winrate">0%</div><div class="stat-sub">Sessions won</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Growth curve</div>
+    <div class="chart-area"><svg class="chart-svg" id="brchart" viewBox="0 0 800 140" preserveAspectRatio="none"></svg></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Add session</div>
+    <div class="g3">
+      <div class="field"><div class="field-label">Date</div><input type="text" id="br-date" placeholder="2024-01-15"></div>
+      <div class="field"><div class="field-label">Result ($)</div><input type="number" id="br-result" placeholder="+120"></div>
+      <div class="field"><div class="field-label">Stakes</div><input type="text" id="br-stakes" placeholder="NL100"></div>
+    </div>
+    <button class="btn btn-green" onclick="addSession()">Add session</button>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="page" id="page-journal">
+  <div class="page-head"><h1>Session Journal</h1><p>Log notes and track your progress session by session.</p></div>
+  <div class="card">
+    <div class="card-title">New entry</div>
+    <div class="g3" style="margin-bottom:12px">
+      <div class="field"><div class="field-label">Date</div><input type="text" id="jdate" placeholder="2024-01-15"></div>
+      <div class="field"><div class="field-label">Format</div><input type="text" id="jformat" placeholder="NL100 6-max"></div>
+      <div class="field"><div class="field-label">Result ($)</div><input type="number" id="jresult" placeholder="+150"></div>
+    </div>
+    <div class="field"><div class="field-label">Notes</div><textarea id="jnotes" placeholder="Key spots, leaks identified, mental state..." style="min-height:80px;font-family:'Cabinet Grotesk',sans-serif;font-size:13px"></textarea></div>
+    <button class="btn btn-green" onclick="addJournal()">Save entry</button>
+  </div>
+  <div class="card">
+    <div class="card-title">History</div>
+    <table class="jtable">
+      <thead><tr><th>Date</th><th>Format</th><th>Result</th><th>Notes</th></tr></thead>
+      <tbody id="jtbody"><tr><td colspan="4" style="color:var(--t3);text-align:center;padding:20px">No entries yet</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="page" id="page-stats">
+  <div class="page-head"><h1>My Stats</h1><p>Analyze your key poker metrics with AI feedback.</p></div>
+  <div class="g4" style="margin-bottom:18px">
+    <div class="stat-card blue"><div class="stat-label">VPIP</div><div class="stat-val" id="st-vpip">—</div><div class="stat-sub">Vol. put in pot</div></div>
+    <div class="stat-card green"><div class="stat-label">PFR</div><div class="stat-val" id="st-pfr">—</div><div class="stat-sub">Preflop raise</div></div>
+    <div class="stat-card amber"><div class="stat-label">3-Bet %</div><div class="stat-val" id="st-3b">—</div><div class="stat-sub">3-bet frequency</div></div>
+    <div class="stat-card red"><div class="stat-label">WTSD</div><div class="stat-val" id="st-wtsd">—</div><div class="stat-sub">Went to showdown</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Enter your stats</div>
+    <div class="g4">
+      <div class="field"><div class="field-label">VPIP (%)</div><input type="number" id="inp-vpip" placeholder="24"></div>
+      <div class="field"><div class="field-label">PFR (%)</div><input type="number" id="inp-pfr" placeholder="18"></div>
+      <div class="field"><div class="field-label">3-Bet (%)</div><input type="number" id="inp-3b" placeholder="7"></div>
+      <div class="field"><div class="field-label">WTSD (%)</div><input type="number" id="inp-wtsd" placeholder="28"></div>
+    </div>
+    <button class="btn btn-blue" id="statsbtn" onclick="analyzeStats()">Analyze my stats</button>
+  </div>
+  <div class="loader" id="sload"><div class="lbar"><div class="lfill blue"></div></div><div class="ltxt">Analyzing<span class="blink">_</span></div></div>
+  <div class="res" id="sres">
+    <div class="res-header"><div class="res-title"><div class="live"></div>Stats analysis</div></div>
+    <div id="sblocks"></div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+const SAMPLE=`PokerStars Hand #234567890: Hold'em No Limit ($1/$2 USD) - 2024/03/10 21:45:00 ET\nTable 'Regulus A' 6-max Seat #3 is the button\nSeat 1: Player1 ($200)\nSeat 3: Hero ($220)\nSeat 5: Villain ($310)\nVillain: posts small blind $1\nHero: posts big blind $2\n*** HOLE CARDS ***\nDealt to Hero [Kh Qd]\nPlayer1: folds\nHero: raises $5 to $7\nVillain: calls $5\n*** FLOP *** [Ks 9h 3d]\nVillain: checks\nHero: bets $8\nVillain: calls $8\n*** TURN *** [Ks 9h 3d] [2c]\nVillain: checks\nHero: checks\n*** RIVER *** [Ks 9h 3d 2c] [Jh]\nVillain: bets $22\nHero: calls $22\n*** SHOW DOWN ***\nVillain: shows [Jd Jc] (three of a kind)\nHero: shows [Kh Qd] (pair)\nVillain collected $77`;
+function loadSample(){document.getElementById('handInput').value=SAMPLE}
+
+function goTo(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+async function callAPI(messages,system){
+  const body={messages};if(system)body.system=system;
+  const r=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error('API '+r.status);
+  const d=await r.json();
+  return d.content.map(b=>b.text||'').join('');
+}
+
+function showErr(id,msg){const e=document.getElementById(id);e.textContent='Error: '+msg;e.classList.add('on')}
+function hideErr(id){document.getElementById(id).classList.remove('on')}
+
+function renderBlocks(text,cid,scoreId){
+  const c=document.getElementById(cid);c.innerHTML='';
+  const defs=[{k:'LEAKS',l:'Leaks detected',cl:'red'},{k:'EV',l:'EV & Sizing',cl:'amber'},{k:'STRENGTHS',l:'Strengths',cl:'green'},{k:'ADVICE',l:'Advice',cl:'blue'},{k:'SCORE',l:'Score',cl:'purple'}];
+  let found=false;
+  for(const d of defs){
+    const rx=new RegExp(d.k+'[:\\s]+(.*?)(?=(?:LEAKS|EV|STRENGTHS|ADVICE|SCORE)[:\\s]|$)','si');
+    const m=text.match(rx);
+    if(m&&m[1].trim().length>4){
+      found=true;
+      if(d.k==='SCORE'&&scoreId){const sc=document.getElementById(scoreId);if(sc){sc.textContent=m[1].trim().substring(0,22).toUpperCase();const t=m[1].toUpperCase();sc.className=t.includes('EXCELLENT')||t.includes('STRONG')?'tag tag-g':t.includes('AVERAGE')?'tag tag-a':'tag tag-r';}}
+      c.innerHTML+=`<div class="block ${d.cl}"><div class="block-lbl">${d.l}</div><div class="block-body">${m[1].trim()}</div></div>`;
+    }
+  }
+  if(!found)c.innerHTML=`<div class="block blue"><div class="block-lbl">Analysis</div><div class="block-body">${text}</div></div>`;
+}
+
+async function analyzeHand(){
+  const h=document.getElementById('handInput').value.trim();if(!h)return;
+  hideErr('aerr');document.getElementById('ares').classList.remove('on');
+  document.getElementById('aload').classList.add('on');document.getElementById('abtn').disabled=true;
+  try{const t=await callAPI([{role:'user',content:`Analyze this PokerStars hand. Reply ONLY in this format:\n\nLEAKS:\n[mistakes]\n\nEV:\n[EV analysis]\n\nSTRENGTHS:\n[what hero did well]\n\nADVICE:\n[2-3 actionable tips]\n\nSCORE:\n[EXCELLENT / STRONG / AVERAGE / WEAK / CRITICAL]\n\nHand:\n${h}`}]);renderBlocks(t,'ablocks','ascore');document.getElementById('ares').classList.add('on');}
+  catch(e){showErr('aerr',e.message)}
+  finally{document.getElementById('aload').classList.remove('on');document.getElementById('abtn').disabled=false}
+}
+
+const RANKS=['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+function buildGrid(raise,call,mixed){
+  const g=document.getElementById('rgrid');g.innerHTML='';
+  for(let i=0;i<13;i++)for(let j=0;j<13;j++){
+    const r1=RANKS[i],r2=RANKS[j];
+    let h=i===j?r1+r2:i<j?r1+r2+'s':r2+r1+'o';
+    let cl='F';
+    if(raise.some(x=>h===x||h.startsWith(x)))cl='R';
+    else if(call.some(x=>h===x||h.startsWith(x)))cl='C';
+    else if(mixed.some(x=>h===x||h.startsWith(x)))cl='M';
+    g.innerHTML+=`<div class="rc ${cl}" title="${h}">${h}</div>`;
+  }
+}
+async function getRange(){
+  const fmt=document.getElementById('rf').value,pos=document.getElementById('rp').value,sit=document.getElementById('rs').value,stk=document.getElementById('rst').value,lvl=document.getElementById('rlv').value;
+  hideErr('rerr');document.getElementById('rres').classList.remove('on');
+  document.getElementById('rload').classList.add('on');document.getElementById('rbtn').disabled=true;
+  document.getElementById('rtitle').textContent=`${pos} — ${sit}`;document.getElementById('rchip').textContent=stk;
+  try{
+    const raw=await callAPI([{role:'user',content:`GTO poker range. ONLY valid JSON, no markdown:\n{"raise":["AA"],"call":["TT"],"mixed":["99"],"explanation":"..."}\n\nSituation: ${fmt}, ${pos}, ${sit}, ${stk}, level: ${lvl}`}]);
+    let data;try{data=JSON.parse(raw.replace(/```json|```/g,'').trim())}catch{data={raise:['AA','KK','QQ','JJ','TT','AKs','AQs','AJs','KQs','AKo'],call:['99','88','AQo','KQo'],mixed:['77','66'],explanation:raw.substring(0,300)}}
+    buildGrid(data.raise||[],data.call||[],data.mixed||[]);document.getElementById('rexpl').textContent=data.explanation||'';document.getElementById('rres').classList.add('on');
+  }catch(e){showErr('rerr',e.message)}
+  finally{document.getElementById('rload').classList.remove('on');document.getElementById('rbtn').disabled=false}
+}
+
+const chatHistory=[];
+function appendMsg(role,text){
+  const chat=document.getElementById('cchat');
+  const d=document.createElement('div');d.className='cmsg '+role;
+  d.innerHTML=`<div class="cavatar">${role==='ai'?'EL':'You'}</div><div class="cbubble">${text.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>`;
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
+}
+async function sendChat(){const inp=document.getElementById('cin'),q=inp.value.trim();if(!q)return;inp.value='';askQ(q)}
+async function askQ(q){
+  document.getElementById('cin').value='';appendMsg('user',q);chatHistory.push({role:'user',content:q});
+  document.getElementById('typing').classList.add('on');document.getElementById('csend').disabled=true;
+  try{const t=await callAPI([...chatHistory],'You are an expert poker coach. Master GTO, exploitative play, bankroll management, poker psychology. Answer concisely and directly. Be a mentor who wants the player to genuinely improve.');chatHistory.push({role:'assistant',content:t});document.getElementById('typing').classList.remove('on');appendMsg('ai',t);}
+  catch(e){document.getElementById('typing').classList.remove('on');appendMsg('ai','Connection error: '+e.message)}
+  finally{document.getElementById('csend').disabled=false}
+}
+
+let qScore=0,qTotal=0,curQ=null,answered=false;
+const quizData={
+  GTO:[{q:"What does GTO stand for?",opts:["Game Theory Optimal","General Tournament Optimization","Game Tracking Output","Gross Table Odds"],a:0,expl:"GTO (Game Theory Optimal) is a theoretically unexploitable strategy — even if your opponent knows your strategy, they cannot exploit it."},
+    {q:"If villain bets ½ pot, what equity do you need to call?",opts:["25%","33%","40%","50%"],a:1,expl:"With a ½ pot bet: you call P/2 to win P + P/2 = 3P/2. Equity needed = (P/2)/(3P/2) = 33%."}],
+  Bankroll:[{q:"Standard bankroll rule for NL cash games?",opts:["10 buy-ins","20 buy-ins","50 buy-ins","100 buy-ins"],a:1,expl:"20 buy-ins is the standard rule. Conservative players use 30-50 to handle variance."},
+    {q:"What does Kelly Criterion calculate?",opts:["Optimal bet size for bankroll growth","Best hand preflop","GTO frequency","Win rate at a stake"],a:0,expl:"Kelly Criterion calculates the optimal fraction of your bankroll to bet to maximize long-term growth while minimizing ruin risk."}],
+  Ranges:[{q:"In 6-max, which position has the widest RFI range?",opts:["UTG","MP","CO","BTN"],a:3,expl:"Button (BTN) has position on everyone postflop with only the blinds left — this allows the widest open-raising range."},
+    {q:"What is a 'merged range'?",opts:["Only strong hands","Strong and marginal hands mixed","Only bluffs","A balanced 3-bet range"],a:1,expl:"A merged range mixes strong value hands with marginal hands — used to build a pot in position with your entire range."}],
+  'Mental Game':[{q:"What is 'tilt'?",opts:["A bet sizing type","Emotional state affecting decisions","A GTO concept","A tournament format"],a:1,expl:"Tilt is any emotionally-driven deviation from your A-game, caused by bad beats, mistakes, or external stress."},
+    {q:"Main cause of poker tilt?",opts:["Bad cards","Unmet expectations","Other players","Stakes too high"],a:1,expl:"Tilt is primarily caused by unmet expectations — when results differ from what we believe we deserve."}],
+  Math:[{q:"8 outs on the flop. Approximate equity to the river?",opts:["16%","32%","48%","24%"],a:1,expl:"Rule of 4 on flop: 8 × 4 = 32%. On the turn, rule of 2: 8 × 2 = 16%."},
+    {q:"Villain bets $75 into a $100 pot. Equity needed?",opts:["43%","37%","25%","50%"],a:0,expl:"Call $75 to win $175. Pot odds = 75/175 = 43%. You need 43% equity to break even."}]
+};
+async function loadQuiz(){
+  const topic=document.getElementById('qtopic').value;
+  hideErr('qerr');document.getElementById('qload').classList.add('on');document.getElementById('quiz-area').innerHTML='';answered=false;
+  const pool=quizData[topic]||quizData['GTO'];curQ=pool[Math.floor(Math.random()*pool.length)];
+  await new Promise(r=>setTimeout(r,300));document.getElementById('qload').classList.remove('on');
+  let html=`<div class="quiz-card"><div class="quiz-q">${curQ.q}</div><div class="quiz-opts">`;
+  curQ.opts.forEach((o,i)=>html+=`<button class="quiz-opt" onclick="answerQuiz(${i},this)">${o}</button>`);
+  html+=`</div><div class="quiz-expl" id="qexpl">${curQ.expl}</div></div>`;
+  document.getElementById('quiz-area').innerHTML=html;
+}
+function answerQuiz(i,btn){
+  if(answered)return;answered=true;qTotal++;
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  if(i===curQ.a){btn.classList.add('correct');qScore++;}
+  else{btn.classList.add('wrong');document.querySelectorAll('.quiz-opt')[curQ.a].classList.add('correct');}
+  document.getElementById('qexpl').classList.add('on');
+  document.getElementById('qscore').textContent=`Score: ${qScore} / ${qTotal}`;
+}
+
+function calcEV(){
+  const pot=parseFloat(document.getElementById('ev-pot').value)||100;
+  const bet=parseFloat(document.getElementById('ev-bet').value)||50;
+  const eq=(parseFloat(document.getElementById('ev-eq').value)||35)/100;
+  const fe=(parseFloat(document.getElementById('ev-fe').value)||40)/100;
+  const totalPot=pot+bet;const potOdds=bet/totalPot;
+  const evCall=(eq*pot)-(1-eq)*bet;
+  const evBet=fe*pot+(1-fe)*(eq*totalPot-bet);
+  document.getElementById('evcall').textContent=(evCall>=0?'+':'')+evCall.toFixed(1)+' BB';
+  document.getElementById('evcall').style.color=evCall>=0?'var(--green)':'var(--red)';
+  document.getElementById('evbet').textContent=(evBet>=0?'+':'')+evBet.toFixed(1)+' BB';
+  document.getElementById('evbet').style.color=evBet>=0?'var(--green)':'var(--red)';
+  document.getElementById('evpotodds').textContent=(potOdds*100).toFixed(1)+'%';
+  document.getElementById('evequity').textContent=(eq*100).toFixed(0)+'%';
+  const ok=eq>potOdds;const dec=document.getElementById('evdecision');
+  dec.textContent=ok?'CALL ✓':'FOLD ✗';dec.className=ok?'tag tag-g':'tag tag-r';
+}
+
+let sessions=[];
+function addSession(){
+  const d=document.getElementById('br-date').value||new Date().toISOString().split('T')[0];
+  const r=parseFloat(document.getElementById('br-result').value)||0;
+  const s=document.getElementById('br-stakes').value||'NL100';
+  sessions.push({date:d,result:r,stakes:s});updateBR();
+  ['br-date','br-result','br-stakes'].forEach(id=>document.getElementById(id).value='');
+}
+function updateBR(){
+  const total=sessions.reduce((a,s)=>a+s.result,0);
+  const wins=sessions.filter(s=>s.result>0).length;
+  document.getElementById('br-total').textContent='$'+(1000+total).toFixed(0);
+  document.getElementById('br-profit').textContent=(total>=0?'+':'')+total.toFixed(0);
+  document.getElementById('br-sessions').textContent=sessions.length;
+  document.getElementById('br-winrate').textContent=sessions.length?Math.round(wins/sessions.length*100)+'%':'0%';
+  drawChart();
+}
+function drawChart(){
+  const svg=document.getElementById('brchart');
+  if(!sessions.length){svg.innerHTML='<text x="400" y="80" text-anchor="middle" fill="#555565" font-size="12" font-family="Cabinet Grotesk">Add sessions to see your growth curve</text>';return;}
+  const pts=[0,...sessions.map((_,i)=>sessions.slice(0,i+1).reduce((a,s)=>a+s.result,0))];
+  const mn=Math.min(...pts),mx=Math.max(...pts),range=mx-mn||1;
+  const w=800,h=120,pad=10;
+  const xs=pts.map((_,i)=>pad+i*(w-2*pad)/(pts.length-1||1));
+  const ys=pts.map(p=>h-pad-(p-mn)/range*(h-2*pad));
+  const path='M'+xs.map((x,i)=>`${x},${ys[i]}`).join('L');
+  const area=path+`L${xs[xs.length-1]},${h}L${xs[0]},${h}Z`;
+  const clr=pts[pts.length-1]>=0?'#34d399':'#f87171';
+  svg.innerHTML=`<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${clr}" stop-opacity=".3"/><stop offset="100%" stop-color="${clr}" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#cg)"/><path d="${path}" fill="none" stroke="${clr}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${xs.map((x,i)=>`<circle cx="${x}" cy="${ys[i]}" r="3" fill="${clr}"/>`).join('')}`;
+}
+
+let journal=[];
+function addJournal(){
+  const d=document.getElementById('jdate').value||new Date().toISOString().split('T')[0];
+  const f=document.getElementById('jformat').value||'NL100';
+  const r=parseFloat(document.getElementById('jresult').value)||0;
+  const n=document.getElementById('jnotes').value;
+  journal.unshift({date:d,format:f,result:r,notes:n});renderJournal();
+  ['jdate','jformat','jresult','jnotes'].forEach(id=>document.getElementById(id).value='');
+}
+function renderJournal(){
+  const tb=document.getElementById('jtbody');
+  if(!journal.length){tb.innerHTML='<tr><td colspan="4" style="color:var(--t3);text-align:center;padding:20px">No entries yet</td></tr>';return;}
+  tb.innerHTML=journal.map(e=>`<tr><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--t2)">${e.date}</td><td>${e.format}</td><td class="${e.result>=0?'pos':'neg'}">${e.result>=0?'+':''}${e.result}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t3)">${e.notes||'—'}</td></tr>`).join('');
+}
+
+async function analyzeStats(){
+  const v=document.getElementById('inp-vpip').value,p=document.getElementById('inp-pfr').value,b=document.getElementById('inp-3b').value,w=document.getElementById('inp-wtsd').value;
+  if(!v&&!p)return;
+  document.getElementById('st-vpip').textContent=v+'%';document.getElementById('st-pfr').textContent=p+'%';document.getElementById('st-3b').textContent=b+'%';document.getElementById('st-wtsd').textContent=w+'%';
+  document.getElementById('sres').classList.remove('on');document.getElementById('sload').classList.add('on');document.getElementById('statsbtn').disabled=true;
+  try{const t=await callAPI([{role:'user',content:`Analyze these poker stats. Format:\n\nLEAKS:\n[problems]\n\nSTRENGTHS:\n[good signs]\n\nADVICE:\n[adjustments]\n\nVPIP=${v}%, PFR=${p}%, 3-Bet=${b}%, WTSD=${w}%`}]);renderBlocks(t,'sblocks',null);document.getElementById('sres').classList.add('on');}
+  catch(e){showErr('aerr',e.message)}
+  finally{document.getElementById('sload').classList.remove('on');document.getElementById('statsbtn').disabled=false}
+}
+
+calcEV();loadQuiz();drawChart();
+</script>
+</body>
+</html>
