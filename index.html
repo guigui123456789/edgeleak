@@ -580,10 +580,19 @@ function toggleFaq(el){
 
 // ── AUTH MODAL ──
 let supa = null;
+function isConfigured(){
+  const url = window.SUPABASE_URL || '';
+  const key = window.SUPABASE_ANON_KEY || '';
+  if (!url || !key) return false;
+  if (url.includes('YOUR_PROJECT') || key.includes('YOUR_ANON')) return false;
+  if (!url.startsWith('https://') || !url.includes('.supabase.co')) return false;
+  if (key.length < 40) return false;
+  return true;
+}
 function getSupa(){
   if (supa) return supa;
-  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY){
-    console.warn('Supabase not configured. See SETUP.md');
+  if (!isConfigured()){
+    console.warn('Supabase not configured. Running in DEMO MODE (localStorage only). See SETUP.md to enable real accounts.');
     return null;
   }
   supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);

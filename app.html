@@ -396,9 +396,18 @@ function handLabel(r,c){if(r===c)return RANKS[r]+RANKS[c];if(r<c)return RANKS[r]
 function combos(h){if(h.length===2)return 6;if(h.endsWith('s'))return 4;return 12;}
 
 let supa = null;
+function isConfigured(){
+  const url = window.SUPABASE_URL || '';
+  const key = window.SUPABASE_ANON_KEY || '';
+  if (!url || !key) return false;
+  if (url.includes('YOUR_PROJECT') || key.includes('YOUR_ANON')) return false;
+  if (!url.startsWith('https://') || !url.includes('.supabase.co')) return false;
+  if (key.length < 40) return false;
+  return true;
+}
 function getSupa(){
   if (supa) return supa;
-  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY){ console.warn('Supabase not configured. Demo mode.'); return null; }
+  if (!isConfigured()){ console.warn('Supabase not configured. Running in DEMO MODE (localStorage only). See SETUP.md to enable real accounts.'); return null; }
   supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
   return supa;
 }
