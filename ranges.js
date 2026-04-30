@@ -203,18 +203,100 @@
           'QJs','QTs','Q9s','Q8s','JTs','J9s','J8s','T9s','T8s','98s','87s','76s','65s','54s']
     }),
 
-    // ────────── vs 3-BET (100 BB selection) ──────────
+    // ────────── vs 3-BET (100 BB) ──────────
+    'UTG-100-vs-3bet': r({
+      B: ['AA','KK','AKs'],
+      C: ['QQ','JJ','TT','99','AKo','AQs','AJs','KQs','KJs','QJs','JTs']
+    }),
+    'UTG+1-100-vs-3bet': r({
+      B: ['AA','KK','QQ','AKs','AKo'],
+      C: ['JJ','TT','99','88','AQs','AJs','ATs','KQs','KJs','QJs','JTs','T9s']
+    }),
+    'LJ-100-vs-3bet': r({
+      B: ['AA','KK','QQ','AKs','AKo','A5s'],
+      C: ['JJ','TT','99','88','77','AQs','AQo','AJs','ATs','KQs','KJs','QJs','JTs','T9s','98s']
+    }),
+    'HJ-100-vs-3bet': r({
+      B: ['AA','KK','QQ','AKs','AKo','AQs','A5s','A4s'],
+      C: ['JJ','TT','99','88','77','AQo','AJs','ATs','KQs','KJs','QJs','JTs','T9s','98s']
+    }),
     'CO-100-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
+      C: ['TT','99','88','77','66','AQo','AJs','AJo','ATs','KQs','KJs','QJs','QTs','JTs','T9s','98s']
+    }),
+    'BTN-100-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s','A3s'],
+      C: ['TT','99','88','77','66','55','AQo','AJs','AJo','ATs','A9s','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s','87s','76s']
+    }),
+    'SB-100-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','TT','AKs','AKo','AQs','A5s','A4s'],
+      C: ['99','88','77','66','AQo','AJs','ATs','KQs','KJs','KTs','QJs','QTs','JTs','T9s']
+    }),
+
+    // ────────── vs 3-BET (40 BB) — tighter, more shove/fold ──────────
+    'UTG-40-vs-3bet': r({
+      B: ['AA','KK','QQ','AKs','AKo'],
+      C: ['JJ','TT','99','AQs','AJs','KQs','JTs']
+    }),
+    'CO-40-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s'],
+      C: ['TT','99','88','77','AQo','AJs','ATs','KQs','KJs','QJs','JTs','T9s']
+    }),
+    'BTN-40-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','TT','AKs','AKo','AQs','AJs','A5s','A4s'],
+      C: ['99','88','77','66','55','AQo','AJo','ATs','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s','87s']
+    }),
+    'SB-40-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','TT','99','AKs','AKo','AQs','AJs','A5s'],
+      C: ['88','77','AQo','ATs','KQs','KJs','QJs','JTs']
+    }),
+
+    // ────────── vs 3-BET (20 BB) — mostly all-in or fold ──────────
+    'CO-20-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','TT','AKs','AKo','AQs','AJs','KQs','A5s'],
+      C: []
+    }),
+    'BTN-20-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','TT','99','AKs','AKo','AQs','AQo','AJs','ATs','KQs','KJs','A5s','A4s'],
+      C: []
+    }),
+    'SB-20-vs-3bet': r({
+      B: ['AA','KK','QQ','JJ','TT','99','AKs','AKo','AQs','AJs','A5s'],
+      C: []
+    }),
+
+    // ────────── BB defense vs 3-bet (when BB called open and SB 3-bets) ──────────
+    'BB-100-vs-3bet': r({
+      B: ['AA','KK','QQ','AKs','AKo','A5s'],
+      C: ['JJ','TT','99','88','77','AQs','AQo','AJs','KQs','KJs','QJs','JTs','T9s','98s']
+    }),
+
+    // ────────── SB facing late-position open (vs-open for SB) ──────────
+    'SB-100-vs-open': r({
       B: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
       C: ['TT','99','88','77','AQo','AJs','ATs','KQs','KJs','QJs','JTs','T9s']
     }),
-    'BTN-100-vs-3bet': r({
-      B: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
-      C: ['TT','99','88','77','66','AQo','AJs','AJo','ATs','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s']
-    }),
-    'SB-100-vs-3bet': r({
+    'SB-40-vs-open': r({
       B: ['AA','KK','QQ','JJ','TT','AKs','AKo','AQs','A5s'],
-      C: ['99','88','77','AQo','AJs','ATs','KQs','KJs','QJs','JTs','T9s']
+      C: ['99','88','77','AQo','AJs','ATs','KQs','KJs','QJs','JTs']
+    }),
+    'SB-20-vs-open': r({
+      B: ['AA','KK','QQ','JJ','TT','99','88','AKs','AKo','AQs','AJs','ATs','KQs','A5s','A4s'],
+      C: []
+    }),
+
+    // ────────── Other positions facing an open from earlier ──────────
+    'BTN-100-vs-open': r({
+      B: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
+      C: ['TT','99','88','77','66','55','AQo','AJs','AJo','ATs','A9s','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s','87s','76s']
+    }),
+    'CO-100-vs-open': r({
+      B: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s'],
+      C: ['TT','99','88','77','66','AQo','AJs','ATs','KQs','KJs','QJs','JTs','T9s','98s']
+    }),
+    'HJ-100-vs-open': r({
+      B: ['AA','KK','QQ','AKs','AKo','AQs','A5s'],
+      C: ['JJ','TT','99','88','77','AQo','AJs','ATs','KQs','KJs','QJs','JTs','T9s']
     }),
   };
 

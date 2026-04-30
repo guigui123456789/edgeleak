@@ -282,7 +282,7 @@ main{overflow-y:auto;padding:32px 40px}
     <div class="card-title">Parameters</div>
     <div class="controls">
       <div class="field"><label class="field-label">Format</label>
-        <select id="rf"><option value="MTT">MTT</option><option value="Cash">Cash 6-max</option></select></div>
+        <select id="rf"><option value="MTT">MTT 9-max</option></select></div>
       <div class="field"><label class="field-label">Position</label>
         <select id="rp"><option>UTG</option><option>UTG+1</option><option>LJ</option><option>HJ</option><option selected>CO</option><option>BTN</option><option>SB</option><option>BB</option></select></div>
       <div class="field"><label class="field-label">Stack depth</label>
@@ -571,7 +571,20 @@ function getCurrentRange(){
 
 function renderMatrix(){
   const matrix=document.getElementById('matrix');
-  const range=getCurrentRange()||{};
+  const rawRange=getCurrentRange();
+  const isMissing=mode==='learn'&&!rawRange;
+  const range=rawRange||{};
+
+  if(isMissing){
+    matrix.innerHTML=`<div style="grid-column:1/-1;display:grid;place-items:center;text-align:center;padding:48px 24px;background:var(--cream-100);border:1px dashed var(--cream-300);border-radius:8px;aspect-ratio:auto"><div><div style="font-family:var(--serif);font-size:22px;font-style:italic;color:var(--ink-900);margin-bottom:8px">Range not yet available</div><div style="font-family:var(--body);font-size:14px;color:var(--ink-500);max-width:340px;margin:0 auto;line-height:1.6">This exact spot isn't in the library yet. We're adding new ranges every week. Try a different situation, or build your own range below.</div></div></div>`;
+    document.getElementById('range-info').textContent='—';
+    document.getElementById('stat-vpip').textContent='—';
+    document.getElementById('stat-pfr').textContent='—';
+    document.getElementById('stat-3bet').textContent='—';
+    document.getElementById('stat-combos').textContent='—';
+    return;
+  }
+
   matrix.innerHTML='';
   for(let r=0;r<13;r++){
     for(let c=0;c<13;c++){
