@@ -8,6 +8,6 @@
 // If you leave the placeholders, the site falls back to a local-only "demo mode"
 // that uses localStorage instead of Supabase.
 
-window.SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-window.SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
-window.STRIPE_PRICE_ID = 'price_1TRg2nLqC6EEycUgd0TXBiua'; // Already set: EdgeLeak Pro €9.99/mo
+window.SUPABASE_URL = 'https://uqeqbjkgfsmqjakuotfy.supabase.co';
+window.SUPABASE_ANON_KEY = 'sb_publishable_BWii913uFJLpQNvIuu0tCQ_NrRPp2x_';
+window.STRIPE_PRICE_ID = 'price_1TRg2nLqC6EEycUgd0TXBiua'; // EdgeLeak Pro €9.99/mo
