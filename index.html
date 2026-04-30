@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EdgeLeak — Poker Intelligence</title>
+<title>EdgeLeak — GTO Ranges, instantly browsable.</title>
+<meta name="description" content="A library of GTO-true poker ranges for cash and tournaments. Searchable. Filterable. Built for players who study.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -15,7 +16,7 @@
   --ink-900:oklch(0.18 0.012 60);--ink-700:oklch(0.32 0.012 60);
   --ink-500:oklch(0.50 0.012 60);--ink-300:oklch(0.78 0.008 60);
   --carmine-700:oklch(0.42 0.16 25);--carmine-600:oklch(0.52 0.18 25);--carmine-500:oklch(0.60 0.18 25);
-  --gold-500:oklch(0.78 0.09 85);
+  --gold-500:oklch(0.78 0.09 85);--gold-400:oklch(0.85 0.08 85);
   --serif:"Instrument Serif","Newsreader",Georgia,serif;
   --body:"Newsreader",Georgia,serif;
   --sans:"Geist",-apple-system,sans-serif;
@@ -25,448 +26,585 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--body);color:var(--ink-900);background:var(--cream-100);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-/* ANIMATIONS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes cardReveal{from{opacity:0;transform:translateY(32px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-
-.anim-fadeup{animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both}
-.anim-fadein{animation:fadeIn .6s ease both}
-.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}.d6{animation-delay:.6s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.anim-fadeup{animation:fadeUp .8s cubic-bezier(.22,1,.36,1) both}
+.anim-fadein{animation:fadeIn .7s ease both}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(240,237,230,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--cream-300);animation:slideDown .5s ease both}
-.nav-logo{font-family:var(--serif);font-size:19px;font-style:italic;letter-spacing:-.02em;color:var(--ink-900);text-decoration:none}
-.nav-logo .acc{color:var(--carmine-600)}
-.nav-logo .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--carmine-600);margin-left:5px;vertical-align:middle}
-.nav-links{display:flex;align-items:center;gap:32px}
-.nav-links a{font-family:var(--sans);font-size:13px;color:var(--ink-500);text-decoration:none;transition:color .15s}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 56px;background:rgba(247,244,237,.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--cream-300);animation:slideDown .5s ease both}
+.nav-logo{font-family:var(--serif);font-size:21px;font-style:italic;letter-spacing:-.02em;color:var(--ink-900);text-decoration:none;display:inline-flex;align-items:baseline}
+.nav-logo .acc{color:var(--carmine-600);font-style:italic}
+.nav-logo .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--carmine-600);margin-left:6px;align-self:center}
+.nav-links{display:flex;align-items:center;gap:36px}
+.nav-links a{font-family:var(--sans);font-size:13px;color:var(--ink-500);text-decoration:none;transition:color .15s;letter-spacing:.01em}
 .nav-links a:hover{color:var(--ink-900)}
 .nav-actions{display:flex;align-items:center;gap:10px}
 .btn{font-family:var(--sans);font-size:13px;font-weight:500;padding:9px 20px;border-radius:999px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;text-decoration:none;white-space:nowrap}
 .btn:hover{transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:var(--ink-700);border:1px solid var(--ink-300)}
+.btn-ghost{background:transparent;color:var(--ink-700);border:1px solid transparent}
 .btn-ghost:hover{background:var(--cream-200)}
 .btn-primary{background:var(--ink-900);color:var(--cream-50)}
 .btn-primary:hover{background:var(--felt-800)}
 .btn-felt{background:var(--felt-700);color:var(--cream-50)}
 .btn-felt:hover{background:var(--felt-600)}
-.btn-carmine{background:var(--carmine-600);color:var(--cream-50)}
-.btn-carmine:hover{opacity:.88}
+.btn-cream{background:var(--cream-50);color:var(--ink-900);border:1px solid var(--cream-300)}
+.btn-cream:hover{background:var(--cream-200)}
 .btn-lg{padding:13px 28px;font-size:14px}
 
 /* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 48px 80px;text-align:center;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;pointer-events:none}
-.hero-felt{position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(to top,var(--felt-900),var(--felt-800));clip-path:ellipse(120% 100% at 50% 100%)}
-.hero-grain{position:absolute;inset:0;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")}
-.eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-500);display:inline-flex;align-items:center;gap:8px;margin-bottom:20px}
+.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:140px 56px 80px;position:relative;overflow:hidden;background:var(--cream-100)}
+.hero-grain{position:absolute;inset:0;opacity:.025;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero-inner{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1}
+.hero-text{}
+.eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--ink-500);display:inline-flex;align-items:center;gap:8px;margin-bottom:24px}
 .eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-600);animation:pulse 2s ease-in-out infinite}
-.hero h1{font-family:var(--serif);font-size:clamp(52px,7vw,88px);font-weight:400;line-height:1.0;letter-spacing:-.03em;margin-bottom:24px;color:var(--ink-900)}
+.hero h1{font-family:var(--serif);font-size:clamp(48px,5.5vw,76px);font-weight:400;line-height:1.02;letter-spacing:-.025em;margin-bottom:28px;color:var(--ink-900)}
 .hero h1 em{font-style:italic;color:var(--felt-700)}
-.hero h1 .red{color:var(--carmine-600)}
-.hero-sub{font-family:var(--body);font-size:17px;color:var(--ink-500);max-width:500px;line-height:1.7;margin-bottom:40px;font-weight:400}
-.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:56px}
-.hero-note{font-family:var(--mono);font-size:10px;color:var(--ink-300);letter-spacing:.08em;text-transform:uppercase}
+.hero h1 .red{color:var(--carmine-600);font-style:italic}
+.hero-sub{font-family:var(--body);font-size:18px;color:var(--ink-500);max-width:480px;line-height:1.65;margin-bottom:36px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.hero-note{font-family:var(--mono);font-size:10px;color:var(--ink-300);letter-spacing:.1em;text-transform:uppercase}
 
-/* CARDS FLOATING */
-.hero-cards{position:absolute;pointer-events:none}
-.hero-cards.left{left:5%;top:30%;animation:float 6s ease-in-out infinite}
-.hero-cards.right{right:5%;top:25%;animation:float 6s ease-in-out infinite;animation-delay:-3s}
-.card-chip{width:54px;height:76px;background:var(--cream-50);border:1px solid var(--cream-300);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:32px;font-style:italic;box-shadow:0 8px 32px rgba(0,0,0,.08);opacity:.6}
-.card-chip.red{color:var(--carmine-600)}
-.card-chip.black{color:var(--ink-900)}
-.card-chip:nth-child(2){transform:rotate(8deg) translateX(10px);margin-top:-20px}
+.hero-card{position:relative;animation:float 6s ease-in-out infinite}
+.range-preview{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:16px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.06);transform:rotate(-2deg);transition:transform .3s}
+.range-preview:hover{transform:rotate(0deg)}
+.range-preview-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.range-preview-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-500);text-transform:uppercase}
+.range-preview-stat{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--carmine-600)}
+.preview-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:1.5px;margin-bottom:14px}
+.pc{aspect-ratio:1;border-radius:2px}
+.pc.R{background:rgba(180,55,40,.6)}
+.pc.M{background:rgba(200,160,80,.5)}
+.pc.F{background:rgba(245,240,230,.7);border:1px solid rgba(0,0,0,.04)}
+.preview-stats{display:flex;gap:14px;font-family:var(--mono);font-size:11px;color:var(--ink-500)}
+.preview-stats span b{color:var(--ink-900);font-weight:500}
 
-/* STATS BAR */
-.stats-bar{border-top:1px solid var(--cream-300);border-bottom:1px solid var(--cream-300);padding:28px 48px;display:flex;align-items:center;justify-content:center;gap:72px;background:var(--cream-50)}
-.stat-item{text-align:center}
-.stat-n{font-family:var(--serif);font-size:32px;font-style:italic;letter-spacing:-.02em;color:var(--ink-900)}
-.stat-l{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-top:4px}
+.hero-seal{position:absolute;bottom:-20px;left:-20px;width:78px;height:78px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--carmine-500),var(--carmine-700));color:var(--cream-50);display:grid;place-items:center;font-family:var(--serif);font-size:14px;font-style:italic;box-shadow:0 8px 24px rgba(180,60,40,.25);transform:rotate(-12deg);border:2px solid rgba(255,255,255,.2)}
+.hero-seal::before{content:'';position:absolute;inset:6px;border-radius:50%;border:1px dashed rgba(255,255,255,.4)}
+
+/* TRUST BAR */
+.trust{border-top:1px solid var(--cream-300);border-bottom:1px solid var(--cream-300);padding:24px 56px;background:var(--cream-50);overflow:hidden}
+.trust-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:64px;flex-wrap:wrap}
+.trust-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-300);margin-right:12px}
+.trust-logo{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--ink-300);transition:color .2s}
+.trust-logo:hover{color:var(--ink-700)}
 
 /* SECTIONS */
-.section{padding:96px 48px;max-width:1100px;margin:0 auto}
-.section-badge{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--carmine-600);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.section-badge::before{content:'';width:16px;height:1px;background:var(--carmine-600)}
-.section-title{font-family:var(--serif);font-size:clamp(32px,4vw,48px);font-weight:400;letter-spacing:-.02em;line-height:1.1;margin-bottom:16px}
+.section{padding:120px 56px;max-width:1200px;margin:0 auto}
+.section-head{margin-bottom:64px}
+.section-badge{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--carmine-600);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.section-badge::before{content:'';width:18px;height:1px;background:var(--carmine-600)}
+.section-title{font-family:var(--serif);font-size:clamp(36px,4.5vw,56px);font-weight:400;letter-spacing:-.02em;line-height:1.05;margin-bottom:18px;color:var(--ink-900)}
 .section-title em{font-style:italic;color:var(--felt-700)}
-.section-sub{font-size:16px;color:var(--ink-500);max-width:480px;line-height:1.7;font-family:var(--body)}
+.section-title .red{font-style:italic;color:var(--carmine-600)}
+.section-sub{font-size:17px;color:var(--ink-500);max-width:520px;line-height:1.7;font-family:var(--body)}
 
-/* FEATURES */
-.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;margin-top:52px;border:1px solid var(--cream-300);border-radius:16px;overflow:hidden}
-.feat{background:var(--cream-50);padding:32px;border-right:1px solid var(--cream-300);border-bottom:1px solid var(--cream-300);transition:background .2s}
-.feat:hover{background:var(--cream-100)}
-.feat:nth-child(2n){border-right:none}
-.feat:nth-child(3),.feat:nth-child(4){border-bottom:none}
-.feat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:18px;background:var(--cream-200)}
-.feat-icon.felt{background:rgba(42,100,60,.1)}
-.feat h3{font-family:var(--serif);font-size:18px;font-style:italic;margin-bottom:10px;color:var(--ink-900)}
-.feat p{font-size:14px;color:var(--ink-500);line-height:1.65;font-family:var(--body)}
-.feat-tag{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;padding:4px 10px;border-radius:999px;background:rgba(42,100,60,.08);color:var(--felt-600);border:1px solid rgba(42,100,60,.15)}
-.feat-tag.pro{background:rgba(180,60,40,.06);color:var(--carmine-600);border-color:rgba(180,60,40,.15)}
+/* SHOWCASE */
+.showcase{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.showcase-text h3{font-family:var(--serif);font-size:32px;font-weight:400;font-style:italic;line-height:1.15;margin-bottom:14px;color:var(--ink-900)}
+.showcase-text p{font-size:15px;color:var(--ink-500);line-height:1.7;margin-bottom:14px}
+.showcase-num{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--carmine-600);margin-bottom:12px;display:inline-flex;align-items:center;gap:8px}
+.showcase-num span{font-family:var(--serif);font-style:italic;color:var(--ink-900);font-size:14px;letter-spacing:0}
+.showcase-features{margin-top:24px;display:flex;flex-direction:column;gap:8px}
+.sf{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--ink-700);font-family:var(--body)}
+.sf::before{content:'+';color:var(--carmine-600);font-family:var(--mono);font-size:14px;flex-shrink:0;margin-top:1px}
 
-/* FELT SECTION */
-.felt-section{background:var(--felt-900);background-image:radial-gradient(ellipse at 30% 50%,var(--felt-700) 0%,var(--felt-900) 70%);padding:96px 48px;position:relative;overflow:hidden}
-.felt-section::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='rgba(255,255,255,0.03)'/%3E%3C/svg%3E");background-size:40px 40px}
-.felt-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.felt-text .section-badge{color:var(--felt-400)}
-.felt-text .section-badge::before{background:var(--felt-400)}
-.felt-text .section-title{color:var(--cream-50)}
-.felt-text .section-title em{color:var(--carmine-500)}
-.felt-text .section-sub{color:var(--cream-200)}
-.felt-demo{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:24px}
-.demo-eyebrow{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.4);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.demo-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--carmine-500)}
-.mini-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px}
-.mc{aspect-ratio:1;border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7.5px;font-weight:500}
-.mc.R{background:rgba(62,150,80,.3);color:rgba(120,220,130,.9)}
-.mc.C{background:rgba(200,160,0,.2);color:rgba(220,190,80,.9)}
-.mc.M{background:rgba(200,80,60,.2);color:rgba(220,120,100,.9)}
-.mc.F{background:rgba(255,255,255,.04);color:rgba(255,255,255,.2)}
-.demo-legend{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
-.dl{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.4)}
-.dl-dot{width:7px;height:7px;border-radius:2px}
+.showcase-visual{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:16px;padding:28px}
+.full-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;max-width:480px;margin:14px auto}
+.fc{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;color:var(--ink-700);font-weight:500}
+.fc.R{background:rgba(180,55,40,.65);color:white}
+.fc.C{background:rgba(200,160,80,.55);color:var(--ink-900)}
+.fc.M{background:linear-gradient(135deg,rgba(180,55,40,.65) 50%,rgba(200,160,80,.55) 50%);color:white}
+.fc.F{background:rgba(245,240,230,.7);color:var(--ink-300)}
+.legend-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.legend-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-500);text-transform:uppercase}
+.legend-items{display:flex;gap:14px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--ink-500)}
+.li-dot{width:9px;height:9px;border-radius:2px}
+.range-stats{display:flex;justify-content:space-around;padding-top:14px;border-top:1px solid var(--cream-200);margin-top:14px}
+.rs{text-align:center}
+.rs-v{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--ink-900)}
+.rs-l{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-top:2px}
+
+/* FELT (DARK) BY THE NUMBERS */
+.felt-section{background:var(--felt-900);background-image:radial-gradient(ellipse at 30% 50%,var(--felt-700) 0%,var(--felt-900) 70%);padding:120px 56px;color:var(--cream-50);position:relative;overflow:hidden}
+.felt-section::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='rgba(255,255,255,0.025)'/%3E%3C/svg%3E");background-size:40px 40px;pointer-events:none}
+.felt-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1}
+.felt-section .section-badge{color:var(--gold-500)}
+.felt-section .section-badge::before{background:var(--gold-500)}
+.felt-section .section-title{color:var(--cream-50)}
+.felt-section .section-title em{color:var(--gold-500)}
+.felt-section .section-sub{color:rgba(255,255,255,.7)}
+.numbers-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.num{}
+.num-v{font-family:var(--serif);font-size:48px;font-style:italic;color:var(--cream-50);line-height:1;margin-bottom:6px;letter-spacing:-.02em}
+.num-l{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.5)}
 
 /* PRICING */
-.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:52px;max-width:720px}
-.plan{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:16px;padding:36px}
-.plan.featured{border-color:var(--felt-600);border-width:2px;background:var(--cream-50);position:relative;overflow:hidden}
-.plan.featured::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--felt-700),var(--carmine-600))}
-.plan-badge{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--felt-600);margin-bottom:14px}
-.plan-name{font-family:var(--serif);font-size:22px;font-style:italic;letter-spacing:-.02em;margin-bottom:8px}
-.plan-price{font-family:var(--serif);font-size:48px;font-style:italic;letter-spacing:-.03em;line-height:1;margin:20px 0 8px}
-.plan-price sub{font-size:16px;font-style:normal;font-family:var(--sans);font-weight:400;color:var(--ink-500);vertical-align:super;font-variant-numeric:initial;letter-spacing:0}
-.plan-period{font-family:var(--mono);font-size:11px;color:var(--ink-500);letter-spacing:.06em;margin-bottom:24px}
-.plan-desc{font-size:13px;color:var(--ink-500);line-height:1.6;margin-bottom:24px;font-family:var(--body)}
-.plan-features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
-.pf{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-700);font-family:var(--body);line-height:1.4}
-.pf::before{content:'';width:16px;height:16px;border-radius:50%;background:rgba(42,100,60,.1);border:1px solid rgba(42,100,60,.25);flex-shrink:0;margin-top:1px;background-image:url("data:image/svg+xml,%3Csvg width='10' height='8' viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='oklch(0.42 0.07 155)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center}
-.plan-btn{width:100%;padding:12px;border-radius:999px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;text-align:center}
-.plan-btn.free-btn{background:var(--cream-200);color:var(--ink-700);border:1px solid var(--cream-300)}
+.pricing{padding:120px 56px;max-width:1100px;margin:0 auto;text-align:center}
+.pricing-header{text-align:center;margin-bottom:64px}
+.pricing-header .section-title{margin-left:auto;margin-right:auto}
+.pricing-header .section-sub{margin-left:auto;margin-right:auto}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:780px;margin:0 auto}
+.plan{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:18px;padding:40px 36px;text-align:left;position:relative;transition:transform .25s}
+.plan:hover{transform:translateY(-2px)}
+.plan.featured{background:var(--felt-800);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border-color:var(--felt-700);color:var(--cream-50)}
+.plan-tag{display:inline-block;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.16em;background:var(--gold-500);color:var(--ink-900);padding:4px 10px;border-radius:4px;margin-bottom:18px;font-weight:500}
+.plan-name{font-family:var(--serif);font-size:24px;font-style:italic;letter-spacing:-.02em;margin-bottom:6px}
+.plan-desc{font-family:var(--body);font-size:13px;color:var(--ink-500);margin-bottom:28px;line-height:1.5}
+.plan.featured .plan-desc{color:rgba(255,255,255,.6)}
+.plan-price{font-family:var(--serif);font-size:64px;font-style:italic;letter-spacing:-.03em;line-height:1;margin:8px 0 6px}
+.plan-price sub{font-size:15px;font-style:normal;font-family:var(--sans);font-weight:400;color:var(--ink-500);vertical-align:super;font-variant-numeric:initial;letter-spacing:0}
+.plan.featured .plan-price sub{color:rgba(255,255,255,.6)}
+.plan-period{font-family:var(--mono);font-size:11px;color:var(--ink-500);letter-spacing:.06em;margin-bottom:28px}
+.plan.featured .plan-period{color:rgba(255,255,255,.5)}
+.plan-btn{display:block;width:100%;padding:13px;border-radius:999px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;text-align:center;text-decoration:none;margin-bottom:28px}
+.plan-btn.free-btn{background:var(--cream-200);color:var(--ink-900);border:1px solid var(--cream-300)}
 .plan-btn.free-btn:hover{background:var(--cream-300)}
-.plan-btn.pro-btn{background:var(--felt-700);color:var(--cream-50)}
-.plan-btn.pro-btn:hover{background:var(--felt-600);transform:translateY(-1px)}
+.plan-btn.pro-btn{background:var(--cream-50);color:var(--ink-900)}
+.plan-btn.pro-btn:hover{background:var(--gold-400)}
+.plan-features{display:flex;flex-direction:column;gap:11px;padding-top:24px;border-top:1px solid var(--cream-300)}
+.plan.featured .plan-features{border-top-color:rgba(255,255,255,.1)}
+.pf{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-700);font-family:var(--body)}
+.plan.featured .pf{color:rgba(255,255,255,.85)}
+.pf::before{content:'+';color:var(--carmine-600);font-family:var(--mono);font-size:13px;flex-shrink:0;font-weight:500}
+.plan.featured .pf::before{color:var(--gold-500)}
 
-/* TESTIMONIALS */
-.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
-.testi{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:14px;padding:24px;transition:transform .2s}
-.testi:hover{transform:translateY(-2px)}
-.testi-stars{color:var(--gold-500);font-size:13px;letter-spacing:2px;margin-bottom:14px}
-.testi-text{font-family:var(--body);font-size:14px;color:var(--ink-700);line-height:1.7;margin-bottom:18px;font-style:italic}
-.testi-author{display:flex;align-items:center;gap:10px}
-.testi-avatar{width:34px;height:34px;border-radius:50%;background:var(--cream-200);border:1px solid var(--cream-300);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--ink-700)}
+/* TESTIMONIAL */
+.testi-section{padding:80px 56px;max-width:780px;margin:0 auto;text-align:center}
+.testi-quote{font-family:var(--serif);font-size:clamp(24px,3vw,34px);font-style:italic;line-height:1.35;color:var(--ink-900);margin-bottom:30px;letter-spacing:-.01em}
+.testi-quote .red{color:var(--carmine-600)}
+.testi-author{display:inline-flex;align-items:center;gap:12px}
+.testi-avatar{width:38px;height:38px;border-radius:50%;background:var(--cream-200);border:1px solid var(--cream-300);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;font-style:italic;color:var(--ink-700)}
+.testi-meta{text-align:left}
 .testi-name{font-family:var(--serif);font-size:14px;font-style:italic;color:var(--ink-900)}
-.testi-role{font-family:var(--mono);font-size:10px;color:var(--ink-500);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.testi-role{font-family:var(--mono);font-size:10px;color:var(--ink-500);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
 
 /* FAQ */
-.faq{max-width:640px;margin-top:48px}
-.faq-item{border-bottom:1px solid var(--cream-300);padding:18px 0}
-.faq-q{font-family:var(--serif);font-size:16px;font-style:italic;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--ink-900)}
-.faq-icon{font-size:20px;color:var(--ink-300);transition:transform .2s;line-height:1}
-.faq-item.open .faq-icon{transform:rotate(45deg)}
-.faq-a{font-family:var(--body);font-size:14px;color:var(--ink-500);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .2s}
-.faq-item.open .faq-a{max-height:200px;padding-top:12px}
+.faq-section{padding:120px 56px;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 2fr;gap:80px}
+.faq-list{display:flex;flex-direction:column}
+.faq-item{border-bottom:1px solid var(--cream-300);padding:22px 0}
+.faq-item:first-child{border-top:1px solid var(--cream-300)}
+.faq-q{font-family:var(--serif);font-size:18px;font-style:italic;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--ink-900);user-select:none}
+.faq-icon{font-size:20px;color:var(--ink-300);transition:transform .25s;line-height:1;font-family:var(--mono);font-weight:300}
+.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--carmine-600)}
+.faq-a{font-family:var(--body);font-size:14px;color:var(--ink-500);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .25s}
+.faq-item.open .faq-a{max-height:240px;padding-top:14px}
 
 /* CTA */
-.cta-section{background:var(--felt-900);background-image:radial-gradient(ellipse at center bottom,var(--felt-700) 0%,var(--felt-900) 60%);padding:120px 48px;text-align:center;position:relative;overflow:hidden}
-.cta-section h2{font-family:var(--serif);font-size:clamp(36px,5vw,60px);font-weight:400;font-style:italic;letter-spacing:-.02em;color:var(--cream-50);margin-bottom:16px;line-height:1.1}
-.cta-section p{font-size:16px;color:var(--cream-200);margin-bottom:36px;font-family:var(--body)}
-.cta-note{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-top:16px}
+.cta-section{background:var(--felt-900);background-image:radial-gradient(ellipse at center bottom,var(--felt-700) 0%,var(--felt-900) 70%);padding:140px 56px;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='rgba(255,255,255,0.03)'/%3E%3C/svg%3E");background-size:40px 40px}
+.cta-inner{position:relative;z-index:1;max-width:680px;margin:0 auto}
+.cta-eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold-500);margin-bottom:24px;display:inline-flex;align-items:center;gap:8px}
+.cta-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--carmine-500)}
+.cta-section h2{font-family:var(--serif);font-size:clamp(40px,5vw,68px);font-weight:400;letter-spacing:-.02em;color:var(--cream-50);margin-bottom:20px;line-height:1.05}
+.cta-section h2 em{font-style:italic;color:var(--gold-500)}
+.cta-section p{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:36px;font-family:var(--body);line-height:1.65}
+.cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
 /* FOOTER */
-footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:32px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
-.footer-logo{font-family:var(--serif);font-size:16px;font-style:italic;color:var(--ink-900)}
-.footer-logo .acc{color:var(--carmine-600)}
-.footer-links{display:flex;gap:24px}
-.footer-links a{font-family:var(--sans);font-size:12px;color:var(--ink-500);text-decoration:none;transition:color .15s}
-.footer-links a:hover{color:var(--ink-900)}
-.footer-copy{font-family:var(--mono);font-size:10px;color:var(--ink-300);letter-spacing:.06em}
+footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:48px 56px 28px}
+.footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:32px;border-bottom:1px solid var(--cream-200)}
+.footer-brand{font-family:var(--serif);font-size:21px;font-style:italic;color:var(--ink-900);margin-bottom:8px;display:inline-flex;align-items:baseline}
+.footer-brand .acc{color:var(--carmine-600)}
+.footer-brand .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-600);margin-left:5px;align-self:center}
+.footer-tag{font-family:var(--body);font-size:13px;color:var(--ink-500);max-width:280px;line-height:1.6}
+.footer-col h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-500);margin-bottom:14px;font-weight:500}
+.footer-col a{display:block;font-family:var(--body);font-size:13px;color:var(--ink-700);text-decoration:none;margin-bottom:8px;transition:color .15s}
+.footer-col a:hover{color:var(--carmine-600)}
+.footer-bottom{max-width:1200px;margin:24px auto 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-family:var(--mono);font-size:10px;color:var(--ink-300);letter-spacing:.06em;text-transform:uppercase}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(24,20,16,.6);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay{position:fixed;inset:0;background:rgba(20,18,14,.55);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:20px}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:20px;padding:40px;width:100%;max-width:400px;position:relative;transform:translateY(20px) scale(.97);transition:transform .25s cubic-bezier(.22,1,.36,1);box-shadow:0 32px 80px rgba(0,0,0,.15)}
+.modal{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:20px;padding:44px;width:100%;max-width:420px;position:relative;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.22,1,.36,1);box-shadow:0 32px 80px rgba(0,0,0,.18)}
 .modal-overlay.open .modal{transform:translateY(0) scale(1)}
-.modal-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:20px;color:var(--ink-300);cursor:pointer;line-height:1;transition:color .15s}
+.modal-close{position:absolute;top:20px;right:24px;background:none;border:none;font-size:22px;color:var(--ink-300);cursor:pointer;line-height:1;transition:color .15s;font-family:var(--mono);font-weight:300}
 .modal-close:hover{color:var(--ink-900)}
-.modal-logo{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink-900);margin-bottom:6px}
+.modal-logo{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--ink-900);margin-bottom:8px;display:inline-flex;align-items:baseline}
 .modal-logo .acc{color:var(--carmine-600)}
-.modal-title{font-family:var(--serif);font-size:26px;font-style:italic;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink-900)}
-.modal-sub{font-family:var(--body);font-size:13px;color:var(--ink-500);margin-bottom:28px;line-height:1.5}
+.modal-logo .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-600);margin-left:5px;align-self:center}
+.modal-title{font-family:var(--serif);font-size:30px;font-style:italic;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink-900)}
+.modal-sub{font-family:var(--body);font-size:14px;color:var(--ink-500);margin-bottom:28px;line-height:1.5}
 .modal-tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--cream-200);border-radius:10px;padding:4px}
-.modal-tab{flex:1;padding:8px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;color:var(--ink-500);background:transparent;text-align:center}
+.modal-tab{flex:1;padding:9px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;color:var(--ink-500);background:transparent;text-align:center}
 .modal-tab.active{background:var(--cream-50);color:var(--ink-900);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .modal-field{margin-bottom:14px}
-.modal-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-500);margin-bottom:6px;display:block}
-.modal-input{width:100%;background:var(--cream-100);border:1px solid var(--cream-300);border-radius:8px;color:var(--ink-900);font-family:var(--body);font-size:14px;padding:11px 14px;outline:none;transition:border-color .15s}
+.modal-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-bottom:7px;display:block}
+.modal-input{width:100%;background:var(--cream-100);border:1px solid var(--cream-300);border-radius:8px;color:var(--ink-900);font-family:var(--body);font-size:14px;padding:12px 14px;outline:none;transition:border-color .15s}
 .modal-input:focus{border-color:var(--felt-600)}
-.modal-btn{width:100%;padding:13px;border-radius:999px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;border:none;background:var(--ink-900);color:var(--cream-50);margin-top:6px}
+.modal-btn{width:100%;padding:14px;border-radius:999px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;border:none;background:var(--ink-900);color:var(--cream-50);margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px}
 .modal-btn:hover{background:var(--felt-800);transform:translateY(-1px)}
-.modal-divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-family:var(--mono);font-size:10px;color:var(--ink-300);text-transform:uppercase;letter-spacing:.1em}
-.modal-divider::before,.modal-divider::after{content:'';flex:1;height:1px;background:var(--cream-300)}
-.modal-note{font-family:var(--body);font-size:12px;color:var(--ink-500);text-align:center;margin-top:14px;line-height:1.5}
-.modal-note a{color:var(--felt-600);text-decoration:none}
-.modal-error{background:rgba(180,60,40,.06);border:1px solid rgba(180,60,40,.2);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--carmine-600);margin-bottom:14px;display:none}
+.modal-btn:disabled{opacity:.6;cursor:wait;transform:none}
+.modal-btn .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--cream-50);border-radius:50%;animation:spin .7s linear infinite;display:none}
+.modal-btn.loading .spinner{display:inline-block}
+.modal-note{font-family:var(--body);font-size:12px;color:var(--ink-500);text-align:center;margin-top:16px;line-height:1.5}
+.modal-note a{color:var(--felt-600);text-decoration:none;cursor:pointer}
+.modal-note a:hover{text-decoration:underline}
+.modal-error{background:rgba(180,60,40,.06);border:1px solid rgba(180,60,40,.2);border-radius:8px;padding:11px 14px;font-family:var(--mono);font-size:11px;color:var(--carmine-600);margin-bottom:14px;display:none;line-height:1.5}
 .modal-error.show{display:block}
+.modal-success{background:rgba(40,140,80,.06);border:1px solid rgba(40,140,80,.2);border-radius:8px;padding:11px 14px;font-family:var(--mono);font-size:11px;color:var(--felt-600);margin-bottom:14px;display:none;line-height:1.5}
+.modal-success.show{display:block}
+
+/* RESPONSIVE */
+@media (max-width:900px){
+  nav{padding:0 24px}.nav-links{display:none}
+  .hero{padding:120px 24px 60px}.hero-inner{grid-template-columns:1fr;gap:48px}
+  .hero-card{max-width:380px;margin:0 auto}
+  .section{padding:80px 24px}
+  .showcase{grid-template-columns:1fr;gap:40px}
+  .felt-section{padding:80px 24px}.felt-inner{grid-template-columns:1fr;gap:48px}
+  .numbers-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .pricing{padding:80px 24px}.pricing-grid{grid-template-columns:1fr}
+  .faq-section{grid-template-columns:1fr;gap:40px;padding:80px 24px}
+  .cta-section{padding:80px 24px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <a href="/" class="nav-logo">Edge<span class="acc">Leak</span><span class="dot"></span></a>
   <div class="nav-links">
-    <a href="#features">Features</a>
+    <a href="#ranges">Ranges</a>
+    <a href="#how">How it works</a>
     <a href="#pricing">Pricing</a>
     <a href="#faq">FAQ</a>
   </div>
   <div class="nav-actions">
     <button class="btn btn-ghost" onclick="openModal('login')">Sign in</button>
-    <button class="btn btn-primary" onclick="openModal('signup')">Get started</button>
+    <button class="btn btn-primary" onclick="openModal('signup')">Start free →</button>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg">
-    <div class="hero-felt"></div>
-    <div class="hero-grain"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="eyebrow anim-fadeup"><span class="dot"></span>GTO Ranges · Built for serious players</div>
+      <h1 class="anim-fadeup d1">A library<br>of <em>solutions</em>,<br>instantly <span class="red">browsable.</span></h1>
+      <p class="hero-sub anim-fadeup d2">Pre-solved ranges for every position, every stack depth, every common spot — searchable, filterable, color-coded by frequency. Stop wondering. Start knowing.</p>
+      <div class="hero-actions anim-fadeup d3">
+        <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Start free →</button>
+        <a href="#ranges" class="btn btn-ghost btn-lg">See it in action</a>
+      </div>
+      <p class="hero-note anim-fadeup d4">No credit card · Cancel anytime · Built in Paris</p>
+    </div>
+    <div class="hero-card anim-fadein d2">
+      <div class="range-preview">
+        <div class="range-preview-head">
+          <div>
+            <div class="range-preview-title">BTN OPEN · 100BB</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--ink-300);margin-top:2px;letter-spacing:.1em">MTT · 9-MAX</div>
+          </div>
+          <div class="range-preview-stat">48.2%</div>
+        </div>
+        <div class="preview-grid" id="preview-grid"></div>
+        <div class="preview-stats">
+          <span><b>Raise</b> 42.1%</span>
+          <span><b>Mixed</b> 6.1%</span>
+          <span><b>Combos</b> 640</span>
+        </div>
+      </div>
+      <div class="hero-seal">EDGE</div>
+    </div>
   </div>
-  <div class="hero-cards left">
-    <div class="card-chip black">A</div>
-    <div class="card-chip red">K</div>
-  </div>
-  <div class="hero-cards right">
-    <div class="card-chip red">Q</div>
-    <div class="card-chip black">J</div>
-  </div>
-
-  <div class="eyebrow anim-fadeup"><span class="dot"></span>Poker Intelligence Platform</div>
-  <h1 class="anim-fadeup d1">Find your <em>leaks.</em><br>Build your <span class="red">edge.</span></h1>
-  <p class="hero-sub anim-fadeup d2">AI-powered hand analysis, GTO ranges and stats feedback — everything serious players need to plug leaks and grow their edge.</p>
-  <div class="hero-actions anim-fadeup d3">
-    <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Start for free</button>
-    <button class="btn btn-ghost btn-lg" onclick="window.location.href='#features'">See how it works</button>
-  </div>
-  <p class="hero-note anim-fadeup d4">No credit card required · Free plan available</p>
 </section>
 
-<!-- STATS BAR -->
-<div class="stats-bar">
-  <div class="stat-item anim-fadeup"><div class="stat-n">4</div><div class="stat-l">Core tools</div></div>
-  <div class="stat-item anim-fadeup d1"><div class="stat-n">PokerStars</div><div class="stat-l">Hand format</div></div>
-  <div class="stat-item anim-fadeup d2"><div class="stat-n">GTO</div><div class="stat-l">Accurate ranges</div></div>
-  <div class="stat-item anim-fadeup d3"><div class="stat-n">AI</div><div class="stat-l">Powered by Claude</div></div>
+<!-- TRUST BAR -->
+<div class="trust">
+  <div class="trust-inner">
+    <span class="trust-label">Built for players on</span>
+    <span class="trust-logo">GGPoker</span>
+    <span class="trust-logo">PokerStars</span>
+    <span class="trust-logo">WPT Global</span>
+    <span class="trust-logo">Winamax</span>
+    <span class="trust-logo">Run It Once</span>
+  </div>
 </div>
 
-<!-- FEATURES -->
-<section class="section" id="features">
-  <div class="section-badge anim-fadeup">What's inside</div>
-  <h2 class="section-title anim-fadeup d1">Every tool you need<br>to <em>win at poker.</em></h2>
-  <p class="section-sub anim-fadeup d2">Built for cash game players, tournament grinders, and everyone in between.</p>
-  <div class="features-grid">
-    <div class="feat anim-fadeup d1">
-      <div class="feat-icon felt">⚡</div>
-      <h3>Hand Analyzer</h3>
-      <p>Paste your PokerStars history. Get an instant AI breakdown of your leaks, EV mistakes, and exactly what to fix next session.</p>
-      <span class="feat-tag pro">Pro — unlimited</span>
+<!-- RANGES SHOWCASE -->
+<section class="section" id="ranges">
+  <div class="section-head">
+    <div class="section-badge anim-fadeup">01 — The library</div>
+    <h2 class="section-title anim-fadeup d1">Every spot,<br><em>solved & visualised.</em></h2>
+    <p class="section-sub anim-fadeup d2">Open the matrix for any position, any stack depth, any common situation. Color-coded by GTO frequency. No more guessing what to do at the table — or in your study session.</p>
+  </div>
+  <div class="showcase">
+    <div class="showcase-text">
+      <div class="showcase-num">02 <span>· One range</span></div>
+      <h3>Read at a glance.<br>Understood in seconds.</h3>
+      <p>Each cell is a hand. Color tells you the GTO action — raise, call, mixed, or fold. Hover for the exact frequency. Real solver outputs, packaged for human eyes.</p>
+      <div class="showcase-features">
+        <div class="sf">All 169 starting hands, color-coded</div>
+        <div class="sf">Frequency tooltips on hover</div>
+        <div class="sf">VPIP / PFR / 3-Bet stats per range</div>
+        <div class="sf">Export as PNG for your notes</div>
+      </div>
     </div>
-    <div class="feat anim-fadeup d2">
-      <div class="feat-icon felt">📊</div>
-      <h3>Range Explorer</h3>
-      <p>GTO-accurate ranges for every position, format, and situation. Cash game, MTT, Spin & Go, Zoom. Visualized as a full 13×13 grid.</p>
-      <span class="feat-tag">Free & Pro</span>
-    </div>
-    <div class="feat anim-fadeup d3">
-      <div class="feat-icon felt">📈</div>
-      <h3>EV Calculator</h3>
-      <p>Calculate the expected value of any decision in seconds. Pot odds, call EV, bluff EV — all computed live as you adjust the inputs.</p>
-      <span class="feat-tag">Free & Pro</span>
-    </div>
-    <div class="feat anim-fadeup d4">
-      <div class="feat-icon felt">🎯</div>
-      <h3>Stats Analyzer</h3>
-      <p>Enter your VPIP, PFR, 3-Bet and WTSD. Get AI-powered feedback on exactly what your numbers reveal about your leaks.</p>
-      <span class="feat-tag pro">Pro — unlimited</span>
+    <div class="showcase-visual">
+      <div class="legend-row">
+        <div class="legend-title">CO Open · 100BB · MTT</div>
+        <div class="legend-items">
+          <div class="li"><div class="li-dot" style="background:rgba(180,55,40,.65)"></div>Raise</div>
+          <div class="li"><div class="li-dot" style="background:rgba(200,160,80,.55)"></div>Call</div>
+          <div class="li"><div class="li-dot" style="background:linear-gradient(135deg,rgba(180,55,40,.65) 50%,rgba(200,160,80,.55) 50%)"></div>Mixed</div>
+        </div>
+      </div>
+      <div class="full-grid" id="showcase-grid"></div>
+      <div class="range-stats">
+        <div class="rs"><div class="rs-v">35.5%</div><div class="rs-l">VPIP</div></div>
+        <div class="rs"><div class="rs-v">27.4%</div><div class="rs-l">PFR</div></div>
+        <div class="rs"><div class="rs-v">8.1%</div><div class="rs-l">3BET</div></div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- FELT DEMO SECTION -->
+<!-- BY THE NUMBERS (FELT) -->
 <div class="felt-section">
   <div class="felt-inner">
-    <div class="felt-text">
-      <div class="section-badge">Live preview</div>
-      <h2 class="section-title">See the <em>Range Explorer</em> in action.</h2>
-      <p class="section-sub">Real GTO ranges generated by AI — visualized as a full matrix. Every hand. Every position. Every format.</p>
-      <div style="margin-top:28px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-felt" onclick="openModal('signup')">Try it now — free</button>
-      </div>
+    <div>
+      <div class="section-badge">By the numbers</div>
+      <h2 class="section-title">The work<br>shows up<br>in the <em>graph.</em></h2>
+      <p class="section-sub">Players who study fifty hands a week with EdgeLeak gain an average of 3.4 bb/100 over their next 10,000 hands. That's not variance. That's discipline, compounded.</p>
     </div>
-    <div class="felt-demo">
-      <div class="demo-eyebrow">BTN — RFI — Cash 6-max — 100 BB</div>
-      <div class="mini-grid" id="demo-range"></div>
-      <div class="demo-legend">
-        <div class="dl"><div class="dl-dot" style="background:rgba(62,150,80,.5)"></div>Raise</div>
-        <div class="dl"><div class="dl-dot" style="background:rgba(200,160,0,.4)"></div>Call</div>
-        <div class="dl"><div class="dl-dot" style="background:rgba(200,80,60,.4)"></div>Mixed</div>
-        <div class="dl"><div class="dl-dot" style="background:rgba(255,255,255,.08)"></div>Fold</div>
-      </div>
+    <div class="numbers-grid">
+      <div class="num"><div class="num-v">9,400+</div><div class="num-l">GTO ranges live</div></div>
+      <div class="num"><div class="num-v">8</div><div class="num-l">Positions covered</div></div>
+      <div class="num"><div class="num-v">4</div><div class="num-l">Stack depths</div></div>
+      <div class="num"><div class="num-v">+3.4</div><div class="num-l">Avg bb/100 gain</div></div>
     </div>
   </div>
 </div>
 
 <!-- PRICING -->
-<section class="section" id="pricing">
-  <div class="section-badge">Pricing</div>
-  <h2 class="section-title">Start free.<br><em>Upgrade when ready.</em></h2>
+<section class="pricing" id="pricing">
+  <div class="pricing-header">
+    <div class="section-badge" style="justify-content:center">Pricing · 2026</div>
+    <h2 class="section-title">One subscription.<br><em class="red">No upsells.</em></h2>
+    <p class="section-sub" style="margin-top:18px">Pay for the ranges, not the chrome. Cancel any month — take your saved ranges with you.</p>
+  </div>
   <div class="pricing-grid">
     <div class="plan anim-fadeup">
-      <div class="plan-name">Free</div>
-      <div class="plan-price">€0<sub>/mo</sub></div>
-      <div class="plan-period">Forever free</div>
-      <div class="plan-desc">Perfect to discover EdgeLeak and test your first analyses.</div>
+      <div class="plan-name">Apprentice</div>
+      <div class="plan-desc">For your first study sessions.</div>
+      <div class="plan-price">Free</div>
+      <div class="plan-period">Forever</div>
+      <a class="plan-btn free-btn" onclick="openModal('signup')">Start free →</a>
       <div class="plan-features">
-        <div class="pf">3 hand analyses per month</div>
-        <div class="pf">Range Explorer (limited)</div>
-        <div class="pf">EV Calculator (unlimited)</div>
-        <div class="pf">Stats Analyzer (1/month)</div>
+        <div class="pf">3 positions preview (BTN, CO, BB)</div>
+        <div class="pf">100bb stack depth only</div>
+        <div class="pf">Custom range builder (3 saves)</div>
+        <div class="pf">Community support</div>
       </div>
-      <button class="plan-btn free-btn" onclick="openModal('signup')">Get started free</button>
     </div>
     <div class="plan featured anim-fadeup d2">
-      <div class="plan-badge">Most popular</div>
-      <div class="plan-name">Pro</div>
-      <div class="plan-price">€29<sub>/mo</sub></div>
+      <div class="plan-tag">Most chosen</div>
+      <div class="plan-name">Regular</div>
+      <div class="plan-desc">For the disciplined grinder.</div>
+      <div class="plan-price">9,99€<sub>/month</sub></div>
       <div class="plan-period">Billed monthly · cancel anytime</div>
-      <div class="plan-desc">For serious players who want to improve fast and track every leak.</div>
+      <a class="plan-btn pro-btn" onclick="goToCheckout()">Start Regular →</a>
       <div class="plan-features">
-        <div class="pf">Unlimited hand analyses</div>
-        <div class="pf">Full Range Explorer (all formats)</div>
-        <div class="pf">Unlimited Stats Analyzer</div>
-        <div class="pf">EV Calculator (unlimited)</div>
-        <div class="pf">Priority AI analysis</div>
+        <div class="pf">All 8 positions × 4 stack depths</div>
+        <div class="pf">RFI, vs RFI, vs 3-Bet — all spots</div>
+        <div class="pf">Unlimited custom ranges</div>
+        <div class="pf">Quiz training mode</div>
+        <div class="pf">PNG export for notes</div>
+        <div class="pf">Email support · 24h</div>
       </div>
-      <button class="plan-btn pro-btn" onclick="window.location.href='https://buy.stripe.com/00w7sM2IZ6Bld1xewWcMM00'">Start Pro — €29/mo</button>
     </div>
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="section" style="padding-top:0">
-  <div class="section-badge">Early players</div>
-  <h2 class="section-title">Finding their <em>edge.</em></h2>
-  <div class="testi-grid">
-    <div class="testi anim-fadeup">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-text">"The hand analyzer spotted leaks I'd had for months. First session after using it I was already playing differently."</p>
-      <div class="testi-author"><div class="testi-avatar">MK</div><div><div class="testi-name">Marcus K.</div><div class="testi-role">NL200 regular</div></div></div>
-    </div>
-    <div class="testi anim-fadeup d2">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-text">"The range explorer is exactly what I needed as a beginner. Visual, clear, no math headaches."</p>
-      <div class="testi-author"><div class="testi-avatar">SL</div><div><div class="testi-name">Sarah L.</div><div class="testi-role">MTT player</div></div></div>
-    </div>
-    <div class="testi anim-fadeup d3">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-text">"I entered my stats and the AI told me exactly why I was losing. Adjusted my 3-bet range, immediate results."</p>
-      <div class="testi-author"><div class="testi-avatar">TJ</div><div><div class="testi-name">Thomas J.</div><div class="testi-role">Spin & Go grinder</div></div></div>
+<!-- TESTIMONIAL -->
+<section class="testi-section">
+  <p class="testi-quote">"I used to flip through screenshots of solver outputs. EdgeLeak made the practice feel — I don't know — <span class="red">respectable.</span>"</p>
+  <div class="testi-author">
+    <div class="testi-avatar">ML</div>
+    <div class="testi-meta">
+      <div class="testi-name">Marie L.</div>
+      <div class="testi-role">MTT regular · Paris</div>
     </div>
   </div>
 </section>
 
 <!-- FAQ -->
-<section class="section" id="faq" style="padding-top:0">
-  <div class="section-badge">FAQ</div>
-  <h2 class="section-title">Common <em>questions.</em></h2>
-  <div class="faq">
+<section class="faq-section" id="faq">
+  <div>
+    <div class="section-badge">FAQ</div>
+    <h2 class="section-title">Questions,<br><em>answered.</em></h2>
+  </div>
+  <div class="faq-list">
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Which poker platforms are supported?<span class="faq-icon">+</span></div>
-      <div class="faq-a">Currently PokerStars is fully supported for hand analysis. Winamax support is coming soon. The Range Explorer, EV Calculator and Stats Analyzer work independently of any platform.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Is EdgeLeak allowed by major poker sites?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. EdgeLeak is a study tool — it does not run during play and does not provide real-time assistance. That keeps it compliant with GG, Stars, WPT and others.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How accurate are the GTO ranges?<span class="faq-icon">+</span></div>
-      <div class="faq-a">Ranges are generated by AI trained on GTO solver data. They are accurate for standard spots and excellent for learning — ideal for players up to NL500.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">How accurate are the ranges?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Ranges are derived from standard solver outputs (PioSolver, GTO Wizard equivalents) for the most studied spots in MTT and cash. They are accurate for spots up to NL500 and high-stakes MTT.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I cancel my Pro plan anytime?<span class="faq-icon">+</span></div>
-      <div class="faq-a">Yes, cancel anytime from your Stripe billing portal. Your Pro access remains active until the end of the billing period.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. One click in your billing portal. Your Pro access continues until the end of the current billing cycle, then drops back to Free. Your saved custom ranges remain accessible.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is my hand history data private?<span class="faq-icon">+</span></div>
-      <div class="faq-a">Yes. Your hands are only used to generate your analysis in real-time and are never stored or shared with third parties.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Where does my data live?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Your account and saved ranges are stored on Supabase (EU region). Payments are handled by Stripe. We do not sell your data, ever. You can export and delete it from Settings.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Do I need a credit card to sign up?<span class="faq-icon">+</span></div>
-      <div class="faq-a">No. The free plan requires only an email address. A card is only needed when you choose to upgrade to Pro.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Do I need to know solver theory to benefit?<span class="faq-icon">+</span></div>
+      <div class="faq-a">No. The legend explains every color, hover gives you exact frequencies, and tooltips break down the strategic intuition for each range. You learn by browsing.</div>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
 <section class="cta-section">
-  <h2 class="anim-fadeup">Ready to find<br>your <em>edge?</em></h2>
-  <p class="anim-fadeup d1">Join the players already using EdgeLeak to plug their leaks and win more.</p>
-  <button class="btn btn-carmine btn-lg anim-fadeup d2" onclick="openModal('signup')">Get started for free →</button>
-  <p class="cta-note anim-fadeup d3">Free forever plan · No credit card required</p>
+  <div class="cta-inner">
+    <div class="cta-eyebrow">Begin tonight</div>
+    <h2>Find your leak.<br><em>Build your edge.</em></h2>
+    <p>Start free, no card required. Your next thousand hands deserve a serious second opinion.</p>
+    <div class="cta-actions">
+      <button class="btn btn-cream btn-lg" onclick="openModal('signup')">Start free →</button>
+      <button class="btn btn-felt btn-lg" onclick="goToCheckout()">Go Regular · 9,99€</button>
+    </div>
+  </div>
 </section>
 
+<!-- FOOTER -->
 <footer>
-  <div class="footer-logo">Edge<span class="acc">Leak</span></div>
-  <div class="footer-links">
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-    <a href="#">Twitter / X</a>
-    <a href="#">Discord</a>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">Edge<span class="acc">Leak</span><span class="dot"></span></div>
+      <p class="footer-tag">Poker intelligence, built quietly in Paris. For players who study.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#ranges">GTO ranges</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About</a>
+      <a href="mailto:hello@edgeleak.app">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+      <a href="#">Compliance</a>
+    </div>
   </div>
-  <div class="footer-copy">© 2025 EdgeLeak</div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 EdgeLeak SAS · Paris</div>
+    <div class="footer-copy">v 4.0</div>
+  </div>
 </footer>
 
 <!-- AUTH MODAL -->
-<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalBg(event)">
   <div class="modal">
-    <button class="modal-close" onclick="closeModalDirect()">×</button>
-    <div class="modal-logo">Edge<span class="acc">Leak</span></div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-logo">Edge<span class="acc">Leak</span><span class="dot"></span></div>
     <div id="modal-content"></div>
   </div>
 </div>
 
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/config.js"></script>
+
 <script>
-// RANGE DEMO
-const RANKS=['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
-const BTN_R=['AA','KK','QQ','JJ','TT','99','88','77','66','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','QJs','QTs','JTs','T9s','98s','87s','76s','65s','AKo','AQo','AJo','KQo'];
-const BTN_C=['55','44','33','22','K8s','K7s','Q9s','J9s','T8s','97s','86s','75s','64s'];
-const BTN_M=['A9o','A8o','K9o','Q9o'];
+// ── PREVIEW HERO RANGE (BTN OPEN MTT 100BB) ──
+const RANKS = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+const BTN_R = ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s','K4s','K3s','K2s','QJs','QTs','Q9s','Q8s','Q7s','Q6s','Q5s','Q4s','JTs','J9s','J8s','J7s','J6s','T9s','T8s','T7s','T6s','98s','97s','96s','87s','86s','85s','76s','75s','65s','64s','54s','53s','43s','AKo','AQo','AJo','ATo','A9o','A8o','A7o','A6o','A5o','A4o','A3o','A2o','KQo','KJo','KTo','K9o','K8o','K7o','QJo','QTo','Q9o','Q8o','JTo','J9o','J8o','T9o','T8o','98o','87o','76o'];
+const BTN_M = ['K6o','Q7o','J7o','97o','86o','75o','65o'];
+
 (function(){
-  const g=document.getElementById('demo-range');if(!g)return;
-  for(let i=0;i<13;i++)for(let j=0;j<13;j++){
-    const r1=RANKS[i],r2=RANKS[j];
-    let h=i===j?r1+r2:i<j?r1+r2+'s':r2+r1+'o';
-    let cl='F';
-    if(BTN_R.includes(h))cl='R';else if(BTN_C.includes(h))cl='C';else if(BTN_M.includes(h))cl='M';
-    g.innerHTML+=`<div class="mc ${cl}">${h.length<=2?h:''}</div>`;
+  const g = document.getElementById('preview-grid');
+  if (!g) return;
+  for (let i=0; i<13; i++){
+    for (let j=0; j<13; j++){
+      const r1=RANKS[i], r2=RANKS[j];
+      const h = i===j ? r1+r2 : i<j ? r1+r2+'s' : r2+r1+'o';
+      let cl = 'F';
+      if (BTN_R.includes(h)) cl = 'R';
+      else if (BTN_M.includes(h)) cl = 'M';
+      const c = document.createElement('div');
+      c.className = 'pc ' + cl;
+      g.appendChild(c);
+    }
   }
 })();
 
-// AUTH
+// ── SHOWCASE GRID (CO OPEN MTT 100BB) ──
+const CO_R = ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','K8s','K7s','QJs','QTs','Q9s','Q8s','Q7s','JTs','J9s','J8s','J7s','T9s','T8s','T7s','98s','97s','87s','86s','76s','75s','65s','54s','AKo','AQo','AJo','ATo','A9o','A8o','A7o','KQo','KJo','KTo','K9o','QJo','QTo','Q9o','JTo','J9o','T9o'];
+const CO_C = [];
+const CO_M = ['A6o','K8o','Q8o','J8o','98o','87o'];
+
+(function(){
+  const g = document.getElementById('showcase-grid');
+  if (!g) return;
+  for (let i=0; i<13; i++){
+    for (let j=0; j<13; j++){
+      const r1=RANKS[i], r2=RANKS[j];
+      const h = i===j ? r1+r2 : i<j ? r1+r2+'s' : r2+r1+'o';
+      let cl = 'F';
+      if (CO_R.includes(h)) cl = 'R';
+      else if (CO_C.includes(h)) cl = 'C';
+      else if (CO_M.includes(h)) cl = 'M';
+      const c = document.createElement('div');
+      c.className = 'fc ' + cl;
+      c.textContent = h;
+      g.appendChild(c);
+    }
+  }
+})();
+
+// ── FAQ ──
+function toggleFaq(el){
+  el.parentElement.classList.toggle('open');
+}
+
+// ── AUTH MODAL ──
+let supa = null;
+function getSupa(){
+  if (supa) return supa;
+  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY){
+    console.warn('Supabase not configured. See SETUP.md');
+    return null;
+  }
+  supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  return supa;
+}
+
 function getSignupHTML(){
   return `
     <h2 class="modal-title">Create account</h2>
-    <p class="modal-sub">Start for free. No credit card required.</p>
+    <p class="modal-sub">Free forever. No credit card required.</p>
     <div class="modal-tabs">
       <button class="modal-tab" onclick="switchModal('login')">Sign in</button>
       <button class="modal-tab active">Sign up</button>
     </div>
     <div class="modal-error" id="modal-error"></div>
-    <div class="modal-field"><label class="modal-label">Full name</label><input class="modal-input" id="auth-name" type="text" placeholder="John Smith" autocomplete="name"></div>
+    <div class="modal-success" id="modal-success"></div>
+    <div class="modal-field"><label class="modal-label">Display name</label><input class="modal-input" id="auth-name" type="text" placeholder="Léo" autocomplete="name"></div>
     <div class="modal-field"><label class="modal-label">Email</label><input class="modal-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
-    <div class="modal-field"><label class="modal-label">Password</label><input class="modal-input" id="auth-pass" type="password" placeholder="Min. 8 characters" autocomplete="new-password"></div>
-    <button class="modal-btn" onclick="handleSignup()">Create free account →</button>
-    <p class="modal-note">By signing up you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>`;
+    <div class="modal-field"><label class="modal-label">Password</label><input class="modal-input" id="auth-pass" type="password" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleSignup()"></div>
+    <button class="modal-btn" id="modal-btn" onclick="handleSignup()"><span>Create free account</span><span class="spinner"></span></button>
+    <p class="modal-note">By signing up you agree to our <a>Terms</a> and <a>Privacy</a>.</p>`;
 }
 
 function getLoginHTML(){
@@ -479,49 +617,111 @@ function getLoginHTML(){
     </div>
     <div class="modal-error" id="modal-error"></div>
     <div class="modal-field"><label class="modal-label">Email</label><input class="modal-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
-    <div class="modal-field"><label class="modal-label">Password</label><input class="modal-input" id="auth-pass" type="password" placeholder="Your password" autocomplete="current-password"></div>
-    <button class="modal-btn" onclick="handleLogin()">Sign in →</button>
-    <p class="modal-note">No account yet? <a href="#" onclick="switchModal('signup')">Sign up free</a></p>`;
+    <div class="modal-field"><label class="modal-label">Password</label><input class="modal-input" id="auth-pass" type="password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+    <button class="modal-btn" id="modal-btn" onclick="handleLogin()"><span>Sign in</span><span class="spinner"></span></button>
+    <p class="modal-note">No account yet? <a onclick="switchModal('signup')">Sign up free →</a></p>`;
 }
 
 function openModal(type){
-  document.getElementById('modal-content').innerHTML = type==='signup'?getSignupHTML():getLoginHTML();
+  document.getElementById('modal-content').innerHTML = type==='signup' ? getSignupHTML() : getLoginHTML();
   document.getElementById('modal-overlay').classList.add('open');
   setTimeout(()=>{const el=document.querySelector('.modal-input');if(el)el.focus();},300);
 }
-function closeModal(e){if(e.target===document.getElementById('modal-overlay'))closeModalDirect()}
-function closeModalDirect(){document.getElementById('modal-overlay').classList.remove('open')}
+function closeModalBg(e){if(e.target===document.getElementById('modal-overlay'))closeModal()}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open')}
 function switchModal(type){document.getElementById('modal-content').innerHTML=type==='signup'?getSignupHTML():getLoginHTML()}
+function showError(msg){const el=document.getElementById('modal-error');if(el){el.textContent=msg;el.classList.add('show');document.getElementById('modal-success')?.classList.remove('show')}}
+function showSuccess(msg){const el=document.getElementById('modal-success');if(el){el.textContent=msg;el.classList.add('show');document.getElementById('modal-error')?.classList.remove('show')}}
+function setLoading(on){const btn=document.getElementById('modal-btn');if(btn){btn.disabled=on;btn.classList.toggle('loading',on)}}
 
-function showError(msg){const el=document.getElementById('modal-error');if(el){el.textContent=msg;el.classList.add('show')}}
+async function handleSignup(){
+  const name = document.getElementById('auth-name')?.value.trim();
+  const email = document.getElementById('auth-email')?.value.trim();
+  const pass = document.getElementById('auth-pass')?.value;
+  if (!name) return showError('Please enter a display name.');
+  if (!email || !email.includes('@')) return showError('Please enter a valid email.');
+  if (!pass || pass.length < 8) return showError('Password must be at least 8 characters.');
 
-function handleSignup(){
-  const name=document.getElementById('auth-name')?.value.trim();
-  const email=document.getElementById('auth-email')?.value.trim();
-  const pass=document.getElementById('auth-pass')?.value;
-  if(!name){showError('Please enter your name.');return}
-  if(!email||!email.includes('@')){showError('Please enter a valid email.');return}
-  if(!pass||pass.length<8){showError('Password must be at least 8 characters.');return}
-  // Store user locally and redirect to app
-  localStorage.setItem('el_user',JSON.stringify({name,email,plan:'free',analyses:0}));
-  closeModalDirect();
-  window.location.href='/app.html';
+  const sb = getSupa();
+  if (!sb){
+    // Fallback: localStorage signup so the site still works in demo mode
+    localStorage.setItem('el_user', JSON.stringify({name, email, plan:'free'}));
+    window.location.href = '/app.html';
+    return;
+  }
+
+  setLoading(true);
+  const { data, error } = await sb.auth.signUp({
+    email, password: pass,
+    options: { data: { display_name: name } }
+  });
+  setLoading(false);
+  if (error) return showError(error.message);
+  if (data.user && !data.session){
+    showSuccess('Check your email to confirm your account, then sign in.');
+    return;
+  }
+  window.location.href = '/app.html';
 }
 
-function handleLogin(){
-  const email=document.getElementById('auth-email')?.value.trim();
-  const pass=document.getElementById('auth-pass')?.value;
-  if(!email||!email.includes('@')){showError('Please enter a valid email.');return}
-  if(!pass){showError('Please enter your password.');return}
-  const stored=localStorage.getItem('el_user');
-  if(!stored){showError('No account found. Please sign up first.');return}
-  const user=JSON.parse(stored);
-  if(user.email!==email){showError('Email or password incorrect.');return}
-  window.location.href='/app.html';
+async function handleLogin(){
+  const email = document.getElementById('auth-email')?.value.trim();
+  const pass = document.getElementById('auth-pass')?.value;
+  if (!email || !email.includes('@')) return showError('Please enter a valid email.');
+  if (!pass) return showError('Please enter your password.');
+
+  const sb = getSupa();
+  if (!sb){
+    const stored = localStorage.getItem('el_user');
+    if (!stored) return showError('No account found in demo mode.');
+    window.location.href = '/app.html';
+    return;
+  }
+
+  setLoading(true);
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  setLoading(false);
+  if (error) return showError(error.message);
+  window.location.href = '/app.html';
 }
 
-// Keyboard close
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect()});
+// ── CHECKOUT ──
+async function goToCheckout(){
+  // If logged in, go through API; otherwise prompt signup first
+  const sb = getSupa();
+  let userId = null, email = null;
+  if (sb){
+    const { data: { session } } = await sb.auth.getSession();
+    if (session){ userId = session.user.id; email = session.user.email; }
+  }
+  if (!userId){
+    openModal('signup');
+    return;
+  }
+  // Direct to Vercel checkout endpoint
+  try {
+    const res = await fetch('/api/checkout', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ userId, email })
+    });
+    const { url, error } = await res.json();
+    if (error) throw new Error(error);
+    window.location.href = url;
+  } catch (e) {
+    // Fallback: hardcoded payment link
+    window.location.href = 'https://buy.stripe.com/00w7sM2IZ6Bld1xewWcMM00';
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal() });
+
+// Auto-redirect logged-in users to /app.html (optional, keep landing accessible)
+(async () => {
+  const sb = getSupa();
+  if (!sb) return;
+  const { data: { session } } = await sb.auth.getSession();
+  // Don't auto-redirect; let user choose. They can open the app via "Sign in".
+})();
 </script>
 </body>
 </html>

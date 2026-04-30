@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EdgeLeak — App</title>
+<title>EdgeLeak — Range Explorer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -15,199 +15,199 @@
   --ink-900:oklch(0.18 0.012 60);--ink-700:oklch(0.32 0.012 60);
   --ink-500:oklch(0.50 0.012 60);--ink-300:oklch(0.78 0.008 60);
   --carmine-700:oklch(0.42 0.16 25);--carmine-600:oklch(0.52 0.18 25);--carmine-500:oklch(0.60 0.18 25);
-  --gold-500:oklch(0.78 0.09 85);
+  --gold-500:oklch(0.78 0.09 85);--gold-400:oklch(0.85 0.08 85);
   --serif:"Instrument Serif","Newsreader",Georgia,serif;
   --body:"Newsreader",Georgia,serif;
   --sans:"Geist",-apple-system,sans-serif;
   --mono:"Geist Mono",monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html,body{height:100%;-webkit-font-smoothing:antialiased}
 body{font-family:var(--body);color:var(--ink-900);background:var(--cream-100)}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes shimmer{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%,100%{opacity:.4}50%{opacity:1}}
 
-/* AUTH GATE */
-.auth-gate{position:fixed;inset:0;background:var(--cream-100);z-index:999;display:flex;align-items:center;justify-content:center;animation:fadeIn .3s ease}
+.auth-gate{position:fixed;inset:0;background:var(--cream-100);z-index:999;display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease;padding:20px}
 .auth-gate.hidden{display:none}
-.auth-box{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:20px;padding:44px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.08);animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
-.auth-logo{font-family:var(--serif);font-size:19px;font-style:italic;letter-spacing:-.02em;color:var(--ink-900);margin-bottom:28px;display:flex;align-items:center;gap:0}
+.auth-box{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:20px;padding:44px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.06);animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
+.auth-logo{font-family:var(--serif);font-size:21px;font-style:italic;letter-spacing:-.02em;color:var(--ink-900);margin-bottom:24px;display:inline-flex;align-items:baseline}
 .auth-logo .acc{color:var(--carmine-600)}
 .auth-logo .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-600);margin-left:5px;align-self:center}
-.auth-title{font-family:var(--serif);font-size:28px;font-style:italic;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink-900)}
-.auth-sub{font-family:var(--body);font-size:14px;color:var(--ink-500);margin-bottom:28px;line-height:1.5}
-.auth-tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--cream-200);border-radius:10px;padding:4px}
-.auth-tab{flex:1;padding:8px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;color:var(--ink-500);background:transparent;text-align:center}
+.auth-title{font-family:var(--serif);font-size:30px;font-style:italic;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink-900)}
+.auth-title em{font-style:italic;color:var(--gold-500)}
+.auth-sub{font-family:var(--body);font-size:14px;color:var(--ink-500);margin-bottom:24px;line-height:1.5}
+.auth-tabs{display:flex;gap:4px;margin-bottom:22px;background:var(--cream-200);border-radius:10px;padding:4px}
+.auth-tab{flex:1;padding:9px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;color:var(--ink-500);background:transparent;text-align:center}
 .auth-tab.active{background:var(--cream-50);color:var(--ink-900);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .auth-field{margin-bottom:14px}
-.auth-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-500);margin-bottom:6px;display:block}
-.auth-input{width:100%;background:var(--cream-100);border:1px solid var(--cream-300);border-radius:8px;color:var(--ink-900);font-family:var(--body);font-size:14px;padding:11px 14px;outline:none;transition:border-color .15s}
+.auth-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-bottom:7px;display:block}
+.auth-input{width:100%;background:var(--cream-100);border:1px solid var(--cream-300);border-radius:8px;color:var(--ink-900);font-family:var(--body);font-size:14px;padding:12px 14px;outline:none;transition:border-color .15s}
 .auth-input:focus{border-color:var(--felt-600)}
-.auth-btn{width:100%;padding:13px;border-radius:999px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;border:none;background:var(--ink-900);color:var(--cream-50);margin-top:6px}
+.auth-btn{width:100%;padding:14px;border-radius:999px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;border:none;background:var(--ink-900);color:var(--cream-50);margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px}
 .auth-btn:hover{background:var(--felt-800);transform:translateY(-1px)}
+.auth-btn:disabled{opacity:.6;cursor:wait;transform:none}
+.auth-btn .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--cream-50);border-radius:50%;animation:spin .7s linear infinite;display:none}
+.auth-btn.loading .spinner{display:inline-block}
+.auth-error{background:rgba(180,60,40,.06);border:1px solid rgba(180,60,40,.2);border-radius:8px;padding:11px 14px;font-family:var(--mono);font-size:11px;color:var(--carmine-600);margin-bottom:14px;display:none;line-height:1.5}
+.auth-error.show{display:block}
+.auth-success{background:rgba(40,140,80,.06);border:1px solid rgba(40,140,80,.2);border-radius:8px;padding:11px 14px;font-family:var(--mono);font-size:11px;color:var(--felt-600);margin-bottom:14px;display:none;line-height:1.5}
+.auth-success.show{display:block}
 .auth-note{font-family:var(--body);font-size:12px;color:var(--ink-500);text-align:center;margin-top:14px;line-height:1.5}
 .auth-note a{color:var(--felt-600);text-decoration:none;cursor:pointer}
-.auth-error{background:rgba(180,60,40,.06);border:1px solid rgba(180,60,40,.2);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--carmine-600);margin-bottom:14px;display:none}
-.auth-error.show{display:block}
 
-/* APP LAYOUT */
-.app{display:grid;grid-template-columns:260px 1fr;height:100vh;overflow:hidden}
-
-/* SIDEBAR */
-aside{background:var(--cream-50);border-right:1px solid var(--cream-300);display:flex;flex-direction:column;padding:24px 20px;gap:28px}
+.app{display:none;grid-template-columns:260px 1fr;height:100vh;overflow:hidden}
+.app.show{display:grid}
+aside{background:var(--cream-50);border-right:1px solid var(--cream-300);display:flex;flex-direction:column;padding:24px 18px;gap:24px;overflow-y:auto}
 .sidebar-header{display:flex;justify-content:space-between;align-items:center}
 .logo{font-family:var(--serif);font-size:21px;font-style:italic;letter-spacing:-.02em;color:var(--ink-900);display:inline-flex;align-items:baseline}
 .logo .acc{color:var(--carmine-600)}
 .logo .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-600);margin-left:5px;align-self:center}
 .sidebar-v{font-family:var(--mono);font-size:10px;color:var(--ink-300);letter-spacing:.08em}
 
+.nav-h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-500);margin:0 0 10px;padding:0 4px;font-weight:500}
 .nav-section{display:flex;flex-direction:column;gap:2px}
-.nav-section h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-500);margin:0 0 8px;padding:0 4px}
-.nav-item{background:transparent;color:var(--ink-700);border:none;border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;font-family:var(--sans);font-size:13.5px;transition:background .15s;width:100%;display:flex;align-items:center;gap:9px}
+.nav-item{background:transparent;color:var(--ink-700);border:none;border-radius:8px;padding:10px 12px;text-align:left;cursor:pointer;font-family:var(--sans);font-size:13.5px;transition:background .15s;width:100%;display:flex;align-items:center;gap:10px}
 .nav-item:hover{background:var(--cream-100)}
 .nav-item.active{background:var(--ink-900);color:var(--cream-50)}
-.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.6}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
 .nav-item.active svg{opacity:1}
 
-.user-card{margin-top:auto;padding:14px;border-radius:10px;background:var(--cream-100);border:1px solid var(--cream-300);display:flex;align-items:center;gap:10px}
-.avatar{width:32px;height:32px;border-radius:50%;background:var(--felt-800);color:var(--cream-50);display:inline-flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px;font-style:italic;border:1px solid var(--felt-700);flex-shrink:0}
-.user-name{font-family:var(--serif);font-size:14px;font-style:italic;line-height:1.1;color:var(--ink-900)}
-.user-tag{font-family:var(--mono);font-size:10px;color:var(--ink-500);letter-spacing:.06em;margin-top:2px}
-.user-actions{margin-left:auto;display:flex;gap:4px}
-.icon-btn{background:none;border:none;cursor:pointer;padding:4px;border-radius:5px;color:var(--ink-300);font-size:14px;transition:color .15s}
-.icon-btn:hover{color:var(--ink-700)}
-
-/* PLAN BADGE */
-.plan-banner{background:var(--felt-800);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border:1px solid var(--felt-700);border-radius:10px;padding:14px;margin-top:-8px}
+.plan-banner{background:var(--felt-800);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border:1px solid var(--felt-700);border-radius:12px;padding:16px;margin-top:auto}
 .plan-banner.free{background:var(--cream-100);background-image:none;border-color:var(--cream-300)}
-.plan-banner-name{font-family:var(--serif);font-size:13px;font-style:italic;color:var(--cream-50)}
+.plan-banner.pro{background:linear-gradient(135deg,var(--felt-700),var(--felt-900));border-color:var(--felt-600)}
+.plan-banner-name{font-family:var(--serif);font-size:14px;font-style:italic;color:var(--cream-50);display:flex;align-items:center;gap:6px}
 .plan-banner.free .plan-banner-name{color:var(--ink-900)}
-.plan-banner-tag{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--cream-200);margin-top:2px}
+.plan-banner-tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.65);margin-top:3px}
 .plan-banner.free .plan-banner-tag{color:var(--ink-500)}
-.plan-banner-btn{display:block;width:100%;margin-top:10px;padding:8px;border-radius:999px;background:var(--carmine-600);color:var(--cream-50);font-family:var(--sans);font-size:12px;font-weight:500;border:none;cursor:pointer;text-align:center;transition:opacity .15s}
+.plan-banner-btn{display:block;width:100%;margin-top:12px;padding:9px;border-radius:999px;background:var(--carmine-600);color:var(--cream-50);font-family:var(--sans);font-size:12px;font-weight:500;border:none;cursor:pointer;text-align:center;transition:opacity .15s}
 .plan-banner-btn:hover{opacity:.88}
 
-/* MAIN */
-main{overflow-y:auto}
-.page{display:none;padding:36px 40px;max-width:900px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both}
+.user-card{padding:14px;border-radius:10px;background:var(--cream-100);border:1px solid var(--cream-300);display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--felt-800);color:var(--cream-50);display:inline-flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px;font-style:italic;flex-shrink:0}
+.user-name{font-family:var(--serif);font-size:14px;font-style:italic;line-height:1.1;color:var(--ink-900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+.user-tag{font-family:var(--mono);font-size:9px;color:var(--ink-500);letter-spacing:.06em;margin-top:2px;text-transform:uppercase}
+.user-actions{margin-left:auto}
+.icon-btn{background:none;border:none;cursor:pointer;padding:5px;border-radius:5px;color:var(--ink-300);font-size:14px;transition:color .15s}
+.icon-btn:hover{color:var(--carmine-600)}
+
+main{overflow-y:auto;padding:32px 40px}
+.page{display:none;max-width:1200px;animation:fadeUp .35s cubic-bezier(.22,1,.36,1) both}
 .page.active{display:block}
-
-.page-eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-500);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.page-eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-500);display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .page-eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-600)}
-.page-head h1{font-family:var(--serif);font-size:34px;font-weight:400;font-style:italic;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink-900)}
-.page-head p{font-size:14px;color:var(--ink-500);line-height:1.6;font-family:var(--body);margin-bottom:28px}
+.page-head{margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px}
+.page-head h1{font-family:var(--serif);font-size:36px;font-weight:400;font-style:italic;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink-900)}
+.page-head p{font-size:14px;color:var(--ink-500);line-height:1.6;font-family:var(--body);max-width:560px}
 
-/* CARDS */
-.card{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:14px;padding:24px;margin-bottom:16px}
-.card-felt{background:var(--felt-800);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border:1px solid var(--felt-700);border-radius:14px;padding:24px;margin-bottom:16px;color:var(--cream-100)}
-.card-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-500);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:14px;padding:24px;margin-bottom:18px}
+.card-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-500);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .card-title::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--carmine-600);flex-shrink:0}
-.card-felt .card-title{color:var(--cream-200)}
-.card-felt .card-title::before{background:var(--carmine-500)}
 
-/* FORM */
-.field{margin-bottom:14px}
-.field-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-500);margin-bottom:7px;display:block}
-input[type=text],input[type=number],textarea,select{width:100%;background:var(--cream-100);border:1px solid var(--cream-300);border-radius:8px;color:var(--ink-900);font-family:var(--body);font-size:13px;padding:10px 13px;outline:none;transition:border-color .15s}
-input:focus,textarea:focus,select:focus{border-color:var(--felt-600)}
-textarea{resize:vertical;min-height:130px;font-family:var(--mono);font-size:12px;line-height:1.65}
-select option{background:var(--cream-50)}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:0}
+@media(max-width:900px){.controls{grid-template-columns:1fr 1fr}}
+.field-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-bottom:7px;display:block}
+.field select,.field input{width:100%;background:var(--cream-100);border:1px solid var(--cream-300);border-radius:8px;color:var(--ink-900);font-family:var(--body);font-size:13px;padding:10px 13px;outline:none;transition:border-color .15s;cursor:pointer}
+.field select:focus,.field input:focus{border-color:var(--felt-600)}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:999px;border:none;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
-.btn:hover{transform:translateY(-1px)}
-.btn-primary{background:var(--ink-900);color:var(--cream-50)}
-.btn-primary:hover{background:var(--felt-800)}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-felt{background:var(--felt-700);color:var(--cream-50)}
-.btn-felt:hover{background:var(--felt-600)}
-.btn-felt:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-ghost{background:transparent;color:var(--ink-700);border:1px solid var(--cream-300)}
-.btn-ghost:hover{border-color:var(--ink-300);background:var(--cream-200)}
-.btn-cream{background:var(--cream-50);color:var(--ink-900);border:1px solid var(--cream-300)}
-.btn-cream:hover{background:var(--cream-200)}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.mode-toggle{display:inline-flex;background:var(--cream-200);border-radius:10px;padding:3px;gap:2px}
+.mode-toggle button{background:transparent;border:none;color:var(--ink-500);padding:8px 18px;border-radius:7px;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;transition:all .15s}
+.mode-toggle button.active{background:var(--cream-50);color:var(--ink-900);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 
-/* GRIDS */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.range-area{display:grid;grid-template-columns:1fr 320px;gap:24px}
+@media(max-width:1100px){.range-area{grid-template-columns:1fr}}
+.range-wrap{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:14px;padding:24px}
+.range-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--cream-200);flex-wrap:wrap;gap:10px}
+.range-title{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink-900);display:flex;align-items:center;gap:8px}
+.range-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--felt-600)}
+.range-info{font-family:var(--mono);font-size:11px;color:var(--ink-500);letter-spacing:.06em}
 
-/* STAT CARDS */
-.stat-card{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:14px;padding:20px}
-.stat-label{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:500;color:var(--ink-500);display:block;margin-bottom:8px}
-.stat-value{font-family:var(--serif);font-style:italic;font-size:36px;line-height:1;color:var(--ink-900);display:block;font-variant-numeric:tabular-nums}
-.stat-sub{font-family:var(--mono);font-size:11px;color:var(--ink-500);letter-spacing:.06em;margin-top:6px;display:block}
-.stat-card.felt{background:var(--felt-800);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border-color:var(--felt-700)}
-.stat-card.felt .stat-label{color:var(--cream-200)}
-.stat-card.felt .stat-value{color:var(--cream-50)}
-.stat-card.felt .stat-sub{color:var(--cream-200)}
+.matrix{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;max-width:560px;margin:0 auto;aspect-ratio:1}
+.cell{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--ink-700);font-weight:500;cursor:pointer;transition:transform .08s;border:1px solid transparent;user-select:none}
+.cell:hover{transform:scale(1.18);z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.12);font-size:10px}
+.cell.R{background:rgba(180,55,40,.65);color:white}
+.cell.C{background:rgba(200,160,80,.55);color:var(--ink-900)}
+.cell.M{background:linear-gradient(135deg,rgba(180,55,40,.65) 50%,rgba(200,160,80,.55) 50%);color:white}
+.cell.B{background:rgba(60,100,180,.55);color:white}
+.cell.F{background:rgba(245,240,230,.7);color:var(--ink-300);border-color:var(--cream-200)}
 
-/* LOADER */
-.loader{display:none;margin:16px 0}
-.loader.on{display:block}
-.lbar{height:1.5px;background:var(--cream-300);border-radius:2px;overflow:hidden;margin-bottom:10px}
-.lfill{height:100%;border-radius:2px;animation:lf 1.8s ease-in-out infinite}
-.lfill.felt{background:var(--felt-600)}
-.lfill.gold{background:var(--gold-500)}
-.lfill.carmine{background:var(--carmine-600)}
-@keyframes lf{0%{width:0;margin-left:0}50%{width:55%;margin-left:22%}100%{width:0;margin-left:100%}}
-.ltxt{font-family:var(--mono);font-size:11px;color:var(--ink-500);display:flex;align-items:center;gap:6px}
-.blink{animation:shimmer 1.4s ease-in-out infinite}
+.range-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+.lg{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--ink-500);letter-spacing:.04em}
+.lg-d{width:10px;height:10px;border-radius:2px}
 
-/* RESULTS */
-.res{display:none;margin-top:20px}
-.res.on{display:block;animation:fadeUp .4s ease both}
-.res-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--cream-300)}
-.res-title{font-family:var(--serif);font-size:16px;font-style:italic;display:flex;align-items:center;gap:8px}
-.live-dot{width:6px;height:6px;border-radius:50%;background:var(--felt-600)}
-.chip{font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:4px;font-weight:500;letter-spacing:.05em}
-.chip-g{background:rgba(42,120,60,.1);color:var(--felt-600);border:1px solid rgba(42,120,60,.2)}
-.chip-a{background:rgba(180,140,0,.1);color:var(--gold-500);border:1px solid rgba(180,140,0,.2)}
-.chip-r{background:rgba(180,60,40,.1);color:var(--carmine-600);border:1px solid rgba(180,60,40,.2)}
+.side-panel{display:flex;flex-direction:column;gap:14px}
+.stat-row{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:12px;padding:18px}
+.stat-row h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-500);margin-bottom:14px;font-weight:500}
+.stat-line{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px;font-family:var(--body)}
+.stat-line:not(:last-child){border-bottom:1px solid var(--cream-200)}
+.stat-line span:first-child{color:var(--ink-500)}
+.stat-line span:last-child{font-family:var(--serif);font-style:italic;color:var(--ink-900);font-size:16px}
 
-.block{background:var(--cream-100);border:1px solid var(--cream-300);border-radius:10px;padding:16px 18px;margin-bottom:10px;border-left:3px solid var(--cream-300)}
-.block.red{border-left-color:var(--carmine-600)}
-.block.felt{border-left-color:var(--felt-600)}
-.block.gold{border-left-color:var(--gold-500)}
-.block.ink{border-left-color:var(--ink-700)}
-.block-lbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-500);margin-bottom:8px}
-.block-body{font-family:var(--mono);font-size:12px;line-height:1.75;color:var(--ink-700);white-space:pre-wrap}
+.tip-card{background:var(--felt-800);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border:1px solid var(--felt-700);border-radius:12px;padding:18px;color:var(--cream-100)}
+.tip-card h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--gold-500);margin-bottom:10px;font-weight:500;display:flex;align-items:center;gap:8px}
+.tip-card h4::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--carmine-500)}
+.tip-card p{font-family:var(--body);font-size:13px;line-height:1.6;color:rgba(255,255,255,.85)}
 
-.err-box{display:none;background:rgba(180,60,40,.06);border:1px solid rgba(180,60,40,.2);border-radius:8px;padding:12px 14px;color:var(--carmine-600);font-family:var(--mono);font-size:11px;margin-top:12px}
-.err-box.on{display:block}
+.builder-panel{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:12px;padding:18px}
+.builder-panel h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-500);margin-bottom:12px;font-weight:500}
+.paint-list{display:flex;flex-direction:column;gap:6px}
+.paint-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--cream-300);background:var(--cream-100);color:var(--ink-700);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;transition:all .15s;text-align:left}
+.paint-btn:hover{border-color:var(--ink-300)}
+.paint-btn.active{border-color:var(--carmine-600);background:var(--cream-50);box-shadow:0 0 0 3px rgba(180,60,40,.08)}
+.paint-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+.builder-actions{display:flex;gap:6px;margin-top:14px}
+.builder-actions button{flex:1;background:var(--cream-100);border:1px solid var(--cream-300);color:var(--ink-700);padding:9px;border-radius:8px;cursor:pointer;font-family:var(--sans);font-size:12px;font-weight:500;transition:all .15s}
+.builder-actions button:hover{border-color:var(--ink-300)}
+.builder-actions button.primary{background:var(--ink-900);color:var(--cream-50);border-color:var(--ink-900)}
+.builder-actions button.primary:hover{background:var(--felt-800)}
 
-/* PAYWALL */
-.paywall{background:var(--felt-800);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border:1px solid var(--felt-700);border-radius:14px;padding:40px;text-align:center;margin-top:20px;animation:fadeUp .4s ease both}
-.paywall h3{font-family:var(--serif);font-size:24px;font-style:italic;color:var(--cream-50);margin-bottom:10px}
-.paywall p{font-family:var(--body);font-size:14px;color:var(--cream-200);margin-bottom:28px;line-height:1.65;max-width:360px;margin-left:auto;margin-right:auto}
-.paywall-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:999px;background:var(--carmine-600);color:var(--cream-50);font-family:var(--sans);font-size:14px;font-weight:500;border:none;cursor:pointer;transition:all .15s}
-.paywall-btn:hover{opacity:.88;transform:translateY(-1px)}
-.paywall-note{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-top:16px}
+.saved-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.saved-card{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:12px;padding:18px;cursor:pointer;transition:transform .15s,border-color .15s}
+.saved-card:hover{transform:translateY(-2px);border-color:var(--felt-600)}
+.saved-name{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink-900);margin-bottom:4px}
+.saved-meta{font-family:var(--mono);font-size:10px;color:var(--ink-500);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.mini-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:1.5px;margin-bottom:12px}
+.mc{aspect-ratio:1;border-radius:1.5px}
+.mc.R{background:rgba(180,55,40,.55)}
+.mc.C{background:rgba(200,160,80,.45)}
+.mc.M{background:rgba(150,90,80,.45)}
+.mc.B{background:rgba(60,100,180,.45)}
+.mc.F{background:var(--cream-200)}
+.saved-actions{display:flex;gap:6px}
+.saved-actions button{flex:1;background:var(--cream-100);border:1px solid var(--cream-300);color:var(--ink-700);padding:6px;border-radius:6px;cursor:pointer;font-family:var(--sans);font-size:11px;transition:all .15s}
+.saved-actions button:hover{border-color:var(--ink-300)}
+.saved-actions button.danger:hover{border-color:var(--carmine-600);color:var(--carmine-600)}
+.empty-state{text-align:center;padding:64px 24px;color:var(--ink-500)}
+.empty-state h3{font-family:var(--serif);font-size:24px;font-style:italic;margin-bottom:10px;color:var(--ink-900)}
+.empty-state p{font-family:var(--body);font-size:14px;line-height:1.6;max-width:380px;margin:0 auto 20px}
 
-/* RANGE GRID */
-.range-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;margin:14px 0}
-.rc{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;font-weight:500;cursor:default;transition:transform .1s;border:1px solid transparent}
-.rc:hover{transform:scale(1.14);z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.12)}
-.rc.R{background:rgba(42,100,60,.18);color:var(--felt-600);border-color:rgba(42,100,60,.28)}
-.rc.C{background:rgba(180,140,0,.14);color:var(--gold-500);border-color:rgba(180,140,0,.24)}
-.rc.M{background:rgba(180,60,40,.1);color:var(--carmine-500);border-color:rgba(180,60,40,.2)}
-.rc.F{background:var(--cream-200);color:var(--ink-300);border-color:var(--cream-300)}
-.range-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
-.rl{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--ink-500)}
-.rl-dot{width:8px;height:8px;border-radius:2px}
+.paywall{background:var(--felt-900);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border:1px solid var(--felt-700);border-radius:14px;padding:48px;text-align:center;color:var(--cream-50);margin-top:20px}
+.paywall .seal{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--carmine-500),var(--carmine-700));color:var(--cream-50);display:grid;place-items:center;font-family:var(--serif);font-size:11px;font-style:italic;margin:0 auto 20px;border:2px solid rgba(255,255,255,.15)}
+.paywall h3{font-family:var(--serif);font-size:28px;font-style:italic;color:var(--cream-50);margin-bottom:10px;letter-spacing:-.01em}
+.paywall p{font-family:var(--body);font-size:14px;color:rgba(255,255,255,.7);margin-bottom:28px;line-height:1.65;max-width:420px;margin-left:auto;margin-right:auto}
+.paywall-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:999px;background:var(--gold-500);color:var(--ink-900);font-family:var(--sans);font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
+.paywall-btn:hover{background:var(--gold-400);transform:translateY(-1px)}
+.paywall-note{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:14px}
 
-/* EV */
-.ev-big{font-family:var(--serif);font-style:italic;font-size:40px;letter-spacing:-.02em;margin:10px 0;line-height:1}
-.ev-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--cream-200);font-size:13px;font-family:var(--body)}
-.ev-row:last-child{border:none}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink-900);color:var(--cream-50);padding:12px 20px;border-radius:10px;font-family:var(--sans);font-size:13px;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateY(80px);opacity:0;transition:all .25s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{background:var(--carmine-600)}
+.toast.success{background:var(--felt-700)}
+
+.settings-section{margin-bottom:0}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--cream-200)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-family:var(--body);font-size:14px;color:var(--ink-700)}
+.settings-value{font-family:var(--mono);font-size:12px;color:var(--ink-500)}
+.btn-inline{padding:7px 14px;border-radius:7px;background:var(--cream-100);border:1px solid var(--cream-300);color:var(--ink-700);font-family:var(--sans);font-size:12px;cursor:pointer;transition:all .15s}
+.btn-inline:hover{border-color:var(--ink-300)}
+.btn-inline.danger{color:var(--carmine-600)}
+.btn-inline.danger:hover{border-color:var(--carmine-600)}
 </style>
 </head>
 <body>
 
-<!-- AUTH GATE -->
 <div class="auth-gate" id="auth-gate">
   <div class="auth-box">
     <div class="auth-logo">Edge<span class="acc">Leak</span><span class="dot"></span></div>
@@ -215,46 +215,48 @@ select option{background:var(--cream-50)}
   </div>
 </div>
 
-<!-- APP -->
-<div class="app" id="app-shell" style="display:none">
-
+<div class="app" id="app-shell">
 <aside>
   <div class="sidebar-header">
     <span class="logo">Edge<span class="acc">Leak</span><span class="dot"></span></span>
-    <span class="sidebar-v">v2.1</span>
+    <span class="sidebar-v">v 4.0</span>
   </div>
 
-  <div class="nav-section">
-    <h4>Analysis</h4>
-    <button class="nav-item active" onclick="goTo('analyzer',this)">
-      <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Hand Analyzer
-    </button>
-    <button class="nav-item" onclick="goTo('ranges',this)">
-      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
-      Range Explorer
-    </button>
-    <button class="nav-item" onclick="goTo('ev',this)">
-      <svg viewBox="0 0 16 16" fill="none"><path d="M2 14L6 8l3 3 2-4 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      EV Calculator
-    </button>
-    <button class="nav-item" onclick="goTo('stats',this)">
-      <svg viewBox="0 0 16 16" fill="none"><path d="M2 12V8M6 12V5M10 12V7M14 12V3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Stats Analyzer
-    </button>
+  <div>
+    <div class="nav-h4">Library</div>
+    <div class="nav-section">
+      <button class="nav-item active" data-page="explorer" onclick="goTo('explorer',this)">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Range Explorer
+      </button>
+      <button class="nav-item" data-page="saved" onclick="goTo('saved',this)">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 2h10v12l-5-3-5 3V2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        Saved Ranges
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <div class="nav-h4">Account</div>
+    <div class="nav-section">
+      <button class="nav-item" data-page="settings" onclick="goTo('settings',this)">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Settings
+      </button>
+    </div>
   </div>
 
   <div class="plan-banner free" id="plan-banner">
-    <div class="plan-banner-name" id="plan-banner-name">Free Plan</div>
-    <div class="plan-banner-tag" id="plan-banner-tag">3 analyses remaining</div>
-    <button class="plan-banner-btn" id="plan-banner-btn" onclick="window.location.href='https://buy.stripe.com/00w7sM2IZ6Bld1xewWcMM00'">Upgrade to Pro — €29/mo</button>
+    <div class="plan-banner-name" id="plan-banner-name">Apprentice plan</div>
+    <div class="plan-banner-tag" id="plan-banner-tag">Free · 3 positions · 100bb only</div>
+    <button class="plan-banner-btn" id="plan-banner-btn" onclick="goToCheckout()">Upgrade · 9,99€/mo →</button>
   </div>
 
   <div class="user-card">
     <div class="avatar" id="user-avatar">?</div>
     <div>
       <div class="user-name" id="user-name">—</div>
-      <div class="user-tag" id="user-tag">FREE PLAN</div>
+      <div class="user-tag" id="user-tag">FREE</div>
     </div>
     <div class="user-actions">
       <button class="icon-btn" title="Sign out" onclick="signOut()">↩</button>
@@ -263,457 +265,514 @@ select option{background:var(--cream-50)}
 </aside>
 
 <main>
-
-<!-- ANALYZER -->
-<div class="page active" id="page-analyzer">
+<div class="page active" id="page-explorer">
+  <div class="page-eyebrow"><span class="dot"></span>GTO Library · 9,400+ solutions</div>
   <div class="page-head">
-    <div class="page-eyebrow"><span class="dot"></span>PokerStars format</div>
-    <h1>Hand Analyzer</h1>
-    <p>Paste your hand history for an instant AI breakdown of your leaks, EV mistakes, and actionable fixes.</p>
-  </div>
-  <div class="card">
-    <div class="card-title">Hand History</div>
-    <textarea id="handInput" placeholder="PokerStars Hand #234567890: Hold'em No Limit ($1/$2 USD)...&#10;&#10;Paste one or more hands here."></textarea>
-    <div class="btn-row">
-      <button class="btn btn-primary" id="abtn" onclick="analyzeHand()">Analyze hand</button>
-      <button class="btn btn-ghost" onclick="loadSample()">Load example</button>
-      <button class="btn btn-ghost" onclick="clearAnalyzer()">Clear</button>
+    <div>
+      <h1>Range Explorer</h1>
+      <p>Browse pre-solved ranges or build your own. Color tells you the GTO action.</p>
+    </div>
+    <div class="mode-toggle" id="mode-toggle">
+      <button class="active" data-mode="learn">Library</button>
+      <button data-mode="build">Build my range</button>
     </div>
   </div>
-  <div class="loader" id="aload"><div class="lbar"><div class="lfill felt"></div></div><div class="ltxt"><span class="blink">Analyzing hand...</span></div></div>
-  <div class="err-box" id="aerr"></div>
-  <div class="res" id="ares">
-    <div class="res-header"><div class="res-title"><div class="live-dot"></div>Analysis complete</div><div class="chip chip-g" id="ascore">—</div></div>
-    <div id="ablocks"></div>
-  </div>
-</div>
 
-<!-- RANGES -->
-<div class="page" id="page-ranges">
-  <div class="page-head">
-    <div class="page-eyebrow"><span class="dot"></span>GTO ranges</div>
-    <h1>Range Explorer</h1>
-    <p>Select your game format, position and situation to generate a GTO-accurate range visualized as a full 13×13 matrix.</p>
-  </div>
   <div class="card">
     <div class="card-title">Parameters</div>
-    <div class="g3" style="margin-bottom:14px">
+    <div class="controls">
       <div class="field"><label class="field-label">Format</label>
-        <select id="rf"><option>Cash Game 6-max</option><option>Cash Game 9-max</option><option>MTT</option><option>Spin & Go</option><option>Zoom / Fast-fold</option><option>PLO Cash</option></select></div>
+        <select id="rf"><option value="MTT">MTT</option><option value="Cash">Cash 6-max</option></select></div>
       <div class="field"><label class="field-label">Position</label>
-        <select id="rp"><option>UTG</option><option>UTG+1</option><option>MP</option><option>HJ</option><option>CO</option><option selected>BTN</option><option>SB</option><option>BB</option></select></div>
-      <div class="field"><label class="field-label">Situation</label>
-        <select id="rs"><option>RFI (Open)</option><option>vs RFI — Call</option><option>vs RFI — 3-Bet</option><option>3-Bet Pot IP</option><option>3-Bet Pot OOP</option><option>SRP Flop IP</option><option>SRP Flop OOP</option></select></div>
-    </div>
-    <div class="g2">
+        <select id="rp"><option>UTG</option><option>UTG+1</option><option>LJ</option><option>HJ</option><option selected>CO</option><option>BTN</option><option>SB</option><option>BB</option></select></div>
       <div class="field"><label class="field-label">Stack depth</label>
-        <select id="rst"><option>20 BB (short)</option><option>50 BB</option><option selected>100 BB</option><option>150 BB (deep)</option></select></div>
-      <div class="field"><label class="field-label">Level</label>
-        <select id="rlv"><option>Beginner</option><option selected>Intermediate</option><option>Advanced GTO</option></select></div>
+        <select id="rst"><option value="100">100 BB</option><option value="40">40 BB</option><option value="20">20 BB</option></select></div>
+      <div class="field"><label class="field-label">Situation</label>
+        <select id="rs"><option value="open">RFI (Open)</option><option value="vs-open">vs Open (defense)</option><option value="vs-3bet">vs 3-Bet</option></select></div>
     </div>
-    <div class="btn-row"><button class="btn btn-felt" id="rbtn" onclick="getRange()">Generate range</button></div>
   </div>
-  <div class="loader" id="rload"><div class="lbar"><div class="lfill gold"></div></div><div class="ltxt"><span class="blink">Computing GTO range...</span></div></div>
-  <div class="err-box" id="rerr"></div>
-  <div class="res" id="rres">
-    <div class="res-header">
-      <div class="res-title"><div class="live-dot" style="background:var(--gold-500)"></div><span id="rtitle">Range</span></div>
-      <div class="chip chip-a" id="rchip">—</div>
+
+  <div class="range-area">
+    <div class="range-wrap">
+      <div class="range-head">
+        <div class="range-title" id="range-title">CO Open · 100BB · MTT</div>
+        <div class="range-info" id="range-info">35.5% range · 467 combos</div>
+      </div>
+      <div class="matrix" id="matrix"></div>
+      <div class="range-legend">
+        <div class="lg"><div class="lg-d" style="background:rgba(180,55,40,.65)"></div>Raise</div>
+        <div class="lg"><div class="lg-d" style="background:rgba(200,160,80,.55)"></div>Call</div>
+        <div class="lg"><div class="lg-d" style="background:linear-gradient(135deg,rgba(180,55,40,.65) 50%,rgba(200,160,80,.55) 50%)"></div>Mixed</div>
+        <div class="lg"><div class="lg-d" style="background:rgba(60,100,180,.55)"></div>3-Bet</div>
+        <div class="lg"><div class="lg-d" style="background:var(--cream-200)"></div>Fold</div>
+      </div>
     </div>
-    <div class="range-grid" id="rgrid"></div>
-    <div class="range-legend">
-      <div class="rl"><div class="rl-dot" style="background:rgba(42,100,60,.4)"></div>Raise / Open</div>
-      <div class="rl"><div class="rl-dot" style="background:rgba(180,140,0,.4)"></div>Call</div>
-      <div class="rl"><div class="rl-dot" style="background:rgba(180,60,40,.35)"></div>Mixed</div>
-      <div class="rl"><div class="rl-dot" style="background:var(--cream-300)"></div>Fold</div>
+
+    <div class="side-panel">
+      <div class="stat-row">
+        <h4>Range stats</h4>
+        <div class="stat-line"><span>VPIP</span><span id="stat-vpip">—</span></div>
+        <div class="stat-line"><span>PFR</span><span id="stat-pfr">—</span></div>
+        <div class="stat-line"><span>3-Bet</span><span id="stat-3bet">—</span></div>
+        <div class="stat-line"><span>Total combos</span><span id="stat-combos">—</span></div>
+      </div>
+
+      <div class="tip-card" id="tip-card">
+        <h4>Coach's note</h4>
+        <p id="tip-text">Adjust the parameters to load the GTO range for any spot.</p>
+      </div>
+
+      <div class="builder-panel" id="builder-panel" style="display:none">
+        <h4>Paint brush</h4>
+        <div class="paint-list">
+          <button class="paint-btn active" data-paint="R"><div class="paint-swatch" style="background:rgba(180,55,40,.65)"></div>Raise</button>
+          <button class="paint-btn" data-paint="C"><div class="paint-swatch" style="background:rgba(200,160,80,.55)"></div>Call</button>
+          <button class="paint-btn" data-paint="M"><div class="paint-swatch" style="background:linear-gradient(135deg,rgba(180,55,40,.65) 50%,rgba(200,160,80,.55) 50%)"></div>Mixed</button>
+          <button class="paint-btn" data-paint="B"><div class="paint-swatch" style="background:rgba(60,100,180,.55)"></div>3-Bet</button>
+          <button class="paint-btn" data-paint="F"><div class="paint-swatch" style="background:var(--cream-200)"></div>Fold (clear)</button>
+        </div>
+        <div class="builder-actions">
+          <button onclick="clearBuilder()">Clear all</button>
+          <button class="primary" onclick="saveCustomRange()">Save range</button>
+        </div>
+      </div>
     </div>
-    <div class="block felt" style="margin-top:14px"><div class="block-lbl">Explanation</div><div class="block-body" id="rexpl"></div></div>
   </div>
+
+  <div id="paywall-area"></div>
 </div>
 
-<!-- EV -->
-<div class="page" id="page-ev">
+<div class="page" id="page-saved">
+  <div class="page-eyebrow"><span class="dot"></span>Your library</div>
   <div class="page-head">
-    <div class="page-eyebrow"><span class="dot"></span>Expected value</div>
-    <h1>EV Calculator</h1>
-    <p>Compute the expected value of any poker decision in real-time. Adjust the sliders to see how equity and pot odds interact.</p>
-  </div>
-  <div class="g2">
-    <div class="card">
-      <div class="card-title">Inputs</div>
-      <div class="field"><label class="field-label">Pot size (BB)</label><input type="number" id="ev-pot" value="100" oninput="calcEV()"></div>
-      <div class="field"><label class="field-label">Bet to call (BB)</label><input type="number" id="ev-bet" value="50" oninput="calcEV()"></div>
-      <div class="field"><label class="field-label">Our equity (%)</label><input type="number" id="ev-eq" value="35" oninput="calcEV()"></div>
-      <div class="field"><label class="field-label">Fold equity if we bet (%)</label><input type="number" id="ev-fe" value="40" oninput="calcEV()"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Results</div>
-      <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-bottom:2px">EV of calling</div>
-      <div class="ev-big" id="evcall">—</div>
-      <div class="ev-row"><span style="color:var(--ink-500)">Pot odds required</span><span id="evpotodds" style="font-family:var(--mono)">—</span></div>
-      <div class="ev-row"><span style="color:var(--ink-500)">Your equity</span><span id="evequity" style="font-family:var(--mono)">—</span></div>
-      <div class="ev-row"><span style="color:var(--ink-500)">Decision</span><span id="evdecision">—</span></div>
-      <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-top:18px;margin-bottom:2px">EV of betting (bluff)</div>
-      <div class="ev-big" id="evbet">—</div>
+    <div>
+      <h1>Saved Ranges</h1>
+      <p>Your custom ranges live here. Click any card to open it in the builder.</p>
     </div>
   </div>
+  <div id="saved-content"></div>
 </div>
 
-<!-- STATS -->
-<div class="page" id="page-stats">
+<div class="page" id="page-settings">
+  <div class="page-eyebrow"><span class="dot"></span>Account</div>
   <div class="page-head">
-    <div class="page-eyebrow"><span class="dot"></span>HUD stats</div>
-    <h1>Stats Analyzer</h1>
-    <p>Enter your stats from your HUD or tracker. Get AI-powered feedback on what your numbers reveal about your leaks.</p>
-  </div>
-  <div class="g4" style="margin-bottom:20px">
-    <div class="stat-card felt"><span class="stat-label">VPIP</span><span class="stat-value" id="st-vpip">—</span><span class="stat-sub">Vol. put in pot</span></div>
-    <div class="stat-card felt"><span class="stat-label">PFR</span><span class="stat-value" id="st-pfr">—</span><span class="stat-sub">Preflop raise</span></div>
-    <div class="stat-card"><span class="stat-label">3-Bet %</span><span class="stat-value" id="st-3b">—</span><span class="stat-sub">3-bet frequency</span></div>
-    <div class="stat-card"><span class="stat-label">WTSD</span><span class="stat-value" id="st-wtsd">—</span><span class="stat-sub">Went to showdown</span></div>
+    <div>
+      <h1>Settings</h1>
+      <p>The fine print of your account.</p>
+    </div>
   </div>
   <div class="card">
-    <div class="card-title">Enter your stats</div>
-    <div class="g4">
-      <div class="field"><label class="field-label">VPIP (%)</label><input type="number" id="inp-vpip" placeholder="24"></div>
-      <div class="field"><label class="field-label">PFR (%)</label><input type="number" id="inp-pfr" placeholder="18"></div>
-      <div class="field"><label class="field-label">3-Bet (%)</label><input type="number" id="inp-3b" placeholder="7"></div>
-      <div class="field"><label class="field-label">WTSD (%)</label><input type="number" id="inp-wtsd" placeholder="28"></div>
-    </div>
-    <button class="btn btn-primary" id="statsbtn" onclick="analyzeStats()">Analyze my stats</button>
+    <div class="card-title">Identity</div>
+    <div class="settings-row"><span class="settings-label">Display name</span><span class="settings-value" id="set-name">—</span></div>
+    <div class="settings-row"><span class="settings-label">Email</span><span class="settings-value" id="set-email">—</span></div>
+    <div class="settings-row"><span class="settings-label">Plan</span><span class="settings-value" id="set-plan">Free</span></div>
+    <div class="settings-row"><span class="settings-label">Member since</span><span class="settings-value" id="set-joined">—</span></div>
   </div>
-  <div class="loader" id="sload"><div class="lbar"><div class="lfill felt"></div></div><div class="ltxt"><span class="blink">Analyzing stats...</span></div></div>
-  <div class="res" id="sres">
-    <div class="res-header"><div class="res-title"><div class="live-dot"></div>Stats analysis</div></div>
-    <div id="sblocks"></div>
+  <div class="card">
+    <div class="card-title">Billing</div>
+    <div class="settings-row">
+      <span class="settings-label">Manage subscription</span>
+      <button class="btn-inline" onclick="openBillingPortal()">Open billing portal →</button>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Sign out</span>
+      <button class="btn-inline" onclick="signOut()">Sign out</button>
+    </div>
   </div>
 </div>
 
 </main>
 </div>
 
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/config.js"></script>
+<script src="/ranges.js"></script>
+
 <script>
-// ── LIMITS ──
-const FREE_ANALYSES = 3;
-const FREE_RANGES = 5;
-const FREE_STATS = 1;
-const STRIPE_URL = 'https://buy.stripe.com/00w7sM2IZ6Bld1xewWcMM00';
+const RANKS = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+function handLabel(r,c){if(r===c)return RANKS[r]+RANKS[c];if(r<c)return RANKS[r]+RANKS[c]+'s';return RANKS[c]+RANKS[r]+'o';}
+function combos(h){if(h.length===2)return 6;if(h.endsWith('s'))return 4;return 12;}
 
-// ── AUTH ──
+let supa = null;
+function getSupa(){
+  if (supa) return supa;
+  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY){ console.warn('Supabase not configured. Demo mode.'); return null; }
+  supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  return supa;
+}
+
 let currentUser = null;
+let currentBuilder = {};
+let mode = 'learn';
+let paint = 'R';
 
-function getAuthSignupHTML() {
-  return `
-    <h2 class="auth-title">Create account</h2>
-    <p class="auth-sub">Start for free. No credit card required.</p>
-    <div class="auth-tabs">
-      <button class="auth-tab" onclick="showAuthTab('login')">Sign in</button>
-      <button class="auth-tab active">Sign up</button>
-    </div>
-    <div class="auth-error" id="auth-error"></div>
-    <div class="auth-field"><label class="auth-label">Full name</label><input class="auth-input" id="auth-name" type="text" placeholder="John Smith" autocomplete="name"></div>
-    <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
-    <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="auth-pass" type="password" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleSignup()"></div>
-    <button class="auth-btn" onclick="handleSignup()">Create free account →</button>
-    <p class="auth-note">Already have an account? <a onclick="showAuthTab('login')">Sign in</a></p>`;
+function getAuthSignupHTML(){return `
+  <h2 class="auth-title">Begin your <em>quiet practice.</em></h2>
+  <p class="auth-sub">Free forever. No card required.</p>
+  <div class="auth-tabs"><button class="auth-tab" onclick="showAuthTab('login')">Sign in</button><button class="auth-tab active">Sign up</button></div>
+  <div class="auth-error" id="auth-error"></div><div class="auth-success" id="auth-success"></div>
+  <div class="auth-field"><label class="auth-label">Display name</label><input class="auth-input" id="auth-name" type="text" placeholder="Léo" autocomplete="name"></div>
+  <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+  <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="auth-pass" type="password" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleSignup()"></div>
+  <button class="auth-btn" id="auth-btn" onclick="handleSignup()"><span>Create free account →</span><span class="spinner"></span></button>
+  <p class="auth-note">Already have an account? <a onclick="showAuthTab('login')">Sign in</a></p>`;}
+function getAuthLoginHTML(){return `
+  <h2 class="auth-title">Welcome back.</h2>
+  <p class="auth-sub">Sign in to continue your practice.</p>
+  <div class="auth-tabs"><button class="auth-tab active">Sign in</button><button class="auth-tab" onclick="showAuthTab('signup')">Sign up</button></div>
+  <div class="auth-error" id="auth-error"></div>
+  <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+  <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="auth-pass" type="password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+  <button class="auth-btn" id="auth-btn" onclick="handleLogin()"><span>Sign in →</span><span class="spinner"></span></button>
+  <p class="auth-note">No account? <a onclick="showAuthTab('signup')">Sign up free</a></p>`;}
+function showAuthTab(t){document.getElementById('auth-content').innerHTML=t==='signup'?getAuthSignupHTML():getAuthLoginHTML();setTimeout(()=>{const el=document.querySelector('.auth-input');if(el)el.focus()},80);}
+function showAuthError(m){const e=document.getElementById('auth-error');if(e){e.textContent=m;e.classList.add('show');document.getElementById('auth-success')?.classList.remove('show')}}
+function showAuthSuccess(m){const e=document.getElementById('auth-success');if(e){e.textContent=m;e.classList.add('show');document.getElementById('auth-error')?.classList.remove('show')}}
+function setAuthLoading(on){const b=document.getElementById('auth-btn');if(b){b.disabled=on;b.classList.toggle('loading',on)}}
+
+async function handleSignup(){
+  const name=document.getElementById('auth-name')?.value.trim();
+  const email=document.getElementById('auth-email')?.value.trim();
+  const pass=document.getElementById('auth-pass')?.value;
+  if(!name)return showAuthError('Please enter a display name.');
+  if(!email||!email.includes('@'))return showAuthError('Please enter a valid email.');
+  if(!pass||pass.length<8)return showAuthError('Password must be at least 8 characters.');
+  const sb=getSupa();
+  if(!sb){currentUser={id:'demo',email,name,plan:'free',joined:Date.now()};localStorage.setItem('el_user',JSON.stringify(currentUser));bootApp();return;}
+  setAuthLoading(true);
+  const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{display_name:name}}});
+  setAuthLoading(false);
+  if(error)return showAuthError(error.message);
+  if(data.user&&!data.session){showAuthSuccess('Check your email to confirm your account, then sign in.');return;}
+  await loadUserAndBoot(data.user,name);
 }
 
-function getAuthLoginHTML() {
-  return `
-    <h2 class="auth-title">Welcome back</h2>
-    <p class="auth-sub">Sign in to your EdgeLeak account.</p>
-    <div class="auth-tabs">
-      <button class="auth-tab active">Sign in</button>
-      <button class="auth-tab" onclick="showAuthTab('signup')">Sign up</button>
-    </div>
-    <div class="auth-error" id="auth-error"></div>
-    <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
-    <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="auth-pass" type="password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
-    <button class="auth-btn" onclick="handleLogin()">Sign in →</button>
-    <p class="auth-note">No account? <a onclick="showAuthTab('signup')">Sign up free</a></p>`;
+async function handleLogin(){
+  const email=document.getElementById('auth-email')?.value.trim();
+  const pass=document.getElementById('auth-pass')?.value;
+  if(!email||!email.includes('@'))return showAuthError('Please enter a valid email.');
+  if(!pass)return showAuthError('Please enter your password.');
+  const sb=getSupa();
+  if(!sb){const s=localStorage.getItem('el_user');if(s){currentUser=JSON.parse(s);bootApp();return}return showAuthError('Demo mode: no account found.');}
+  setAuthLoading(true);
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  setAuthLoading(false);
+  if(error)return showAuthError(error.message);
+  await loadUserAndBoot(data.user);
 }
 
-function showAuthTab(tab) {
-  document.getElementById('auth-content').innerHTML = tab === 'signup' ? getAuthSignupHTML() : getAuthLoginHTML();
-  setTimeout(() => { const el = document.querySelector('.auth-input'); if (el) el.focus(); }, 50);
-}
-
-function showAuthError(msg) {
-  const el = document.getElementById('auth-error');
-  if (el) { el.textContent = msg; el.classList.add('show'); }
-}
-
-function handleSignup() {
-  const name = document.getElementById('auth-name')?.value.trim();
-  const email = document.getElementById('auth-email')?.value.trim();
-  const pass = document.getElementById('auth-pass')?.value;
-  if (!name) { showAuthError('Please enter your name.'); return; }
-  if (!email || !email.includes('@')) { showAuthError('Please enter a valid email.'); return; }
-  if (!pass || pass.length < 8) { showAuthError('Password must be at least 8 characters.'); return; }
-  const userData = { name, email, plan: 'free', analyses: 0, ranges: 0, stats: 0, joined: Date.now() };
-  localStorage.setItem('el_user', JSON.stringify(userData));
-  currentUser = userData;
+async function loadUserAndBoot(authUser, fallbackName){
+  const sb=getSupa();
+  let profile=null;
+  if(sb){
+    const {data}=await sb.from('profiles').select('*').eq('id',authUser.id).maybeSingle();
+    profile=data;
+    if(!profile){
+      const name=fallbackName||authUser.user_metadata?.display_name||authUser.email.split('@')[0];
+      const ins=await sb.from('profiles').insert({id:authUser.id,email:authUser.email,display_name:name}).select().single();
+      profile=ins.data;
+    }
+  }
+  currentUser={
+    id:authUser.id,email:authUser.email,
+    name:profile?.display_name||authUser.email.split('@')[0],
+    plan:profile?.is_pro?'pro':'free',
+    joined:profile?.created_at?new Date(profile.created_at).getTime():Date.now()
+  };
   bootApp();
 }
 
-function handleLogin() {
-  const email = document.getElementById('auth-email')?.value.trim();
-  const pass = document.getElementById('auth-pass')?.value;
-  if (!email || !email.includes('@')) { showAuthError('Please enter a valid email.'); return; }
-  if (!pass) { showAuthError('Please enter your password.'); return; }
-  const stored = localStorage.getItem('el_user');
-  if (!stored) { showAuthError('No account found. Please sign up first.'); return; }
-  const user = JSON.parse(stored);
-  if (user.email !== email) { showAuthError('Email or password incorrect.'); return; }
-  currentUser = user;
-  bootApp();
-}
-
-function signOut() {
-  if (!confirm('Sign out of EdgeLeak?')) return;
-  currentUser = null;
-  document.getElementById('app-shell').style.display = 'none';
+async function signOut(){
+  const sb=getSupa();
+  if(sb)await sb.auth.signOut();
+  localStorage.removeItem('el_user');
+  currentUser=null;
+  document.getElementById('app-shell').classList.remove('show');
   document.getElementById('auth-gate').classList.remove('hidden');
   showAuthTab('login');
 }
 
-function bootApp() {
+function bootApp(){
   document.getElementById('auth-gate').classList.add('hidden');
-  document.getElementById('app-shell').style.display = 'grid';
-  // Update UI with user data
-  const initials = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-  document.getElementById('user-avatar').textContent = initials;
-  document.getElementById('user-name').textContent = currentUser.name;
-  updatePlanUI();
-  calcEV();
-}
-
-function updatePlanUI() {
-  const u = currentUser;
-  const banner = document.getElementById('plan-banner');
-  const bannerName = document.getElementById('plan-banner-name');
-  const bannerTag = document.getElementById('plan-banner-tag');
-  const bannerBtn = document.getElementById('plan-banner-btn');
-  const userTag = document.getElementById('user-tag');
-  if (u.plan === 'pro') {
-    banner.className = 'plan-banner';
-    bannerName.textContent = 'Pro Plan';
-    bannerTag.textContent = 'Unlimited analyses';
-    bannerBtn.style.display = 'none';
-    userTag.textContent = 'PRO PLAN';
-  } else {
-    const left = Math.max(0, FREE_ANALYSES - (u.analyses || 0));
-    bannerTag.textContent = `${left} hand analyses remaining`;
-    userTag.textContent = 'FREE PLAN';
+  document.getElementById('app-shell').classList.add('show');
+  refreshUserUI();
+  refresh();
+  if(location.search.includes('checkout=success')){
+    showToast('Welcome to Regular — your plan is now active.','success');
+    history.replaceState(null,'','/app.html');
+    // Reload profile to pick up is_pro
+    setTimeout(async()=>{const sb=getSupa();if(sb){const{data:{session}}=await sb.auth.getSession();if(session)await loadUserAndBoot(session.user)}},1500);
   }
 }
 
-function saveUser() {
-  localStorage.setItem('el_user', JSON.stringify(currentUser));
+function refreshUserUI(){
+  if(!currentUser)return;
+  const initial=(currentUser.name||currentUser.email)[0]?.toUpperCase()||'?';
+  document.getElementById('user-avatar').textContent=initial;
+  document.getElementById('user-name').textContent=currentUser.name;
+  document.getElementById('user-tag').textContent=currentUser.plan==='pro'?'REGULAR':'FREE';
+  const banner=document.getElementById('plan-banner');
+  if(currentUser.plan==='pro'){
+    banner.className='plan-banner pro';
+    document.getElementById('plan-banner-name').textContent='✦ Regular plan';
+    document.getElementById('plan-banner-tag').textContent='Full access · 9,99€/mo';
+    document.getElementById('plan-banner-btn').textContent='Manage billing →';
+    document.getElementById('plan-banner-btn').onclick=openBillingPortal;
+  }else{
+    banner.className='plan-banner free';
+    document.getElementById('plan-banner-name').textContent='Apprentice plan';
+    document.getElementById('plan-banner-tag').textContent='3 positions · 100bb only';
+    document.getElementById('plan-banner-btn').textContent='Upgrade · 9,99€/mo →';
+    document.getElementById('plan-banner-btn').onclick=goToCheckout;
+  }
+  document.getElementById('set-name').textContent=currentUser.name;
+  document.getElementById('set-email').textContent=currentUser.email;
+  document.getElementById('set-plan').textContent=currentUser.plan==='pro'?'Regular · 9,99€/mo':'Apprentice · Free';
+  document.getElementById('set-joined').textContent=new Date(currentUser.joined).toLocaleDateString('en-GB',{month:'short',year:'numeric'});
 }
 
-function canUse(type) {
-  if (currentUser.plan === 'pro') return true;
-  if (type === 'analyses') return (currentUser.analyses || 0) < FREE_ANALYSES;
-  if (type === 'ranges') return (currentUser.ranges || 0) < FREE_RANGES;
-  if (type === 'stats') return (currentUser.stats || 0) < FREE_STATS;
-  return true;
+function goTo(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(page==='saved')loadSavedRanges();
 }
 
-function useQuota(type) {
-  if (currentUser.plan === 'pro') return;
-  currentUser[type] = (currentUser[type] || 0) + 1;
-  saveUser();
-  updatePlanUI();
+const FREE_POSITIONS=['BTN','CO','BB'];
+function isLocked(){
+  if(!currentUser||currentUser.plan==='pro')return false;
+  const pos=document.getElementById('rp').value;
+  const stack=document.getElementById('rst').value;
+  if(!FREE_POSITIONS.includes(pos))return 'position';
+  if(stack!=='100')return 'stack';
+  return false;
 }
 
-function showPaywall(containerId, msg) {
-  const el = document.getElementById(containerId);
-  el.innerHTML = `
-    <div class="paywall">
-      <h3>${msg}</h3>
-      <p>Upgrade to Pro for unlimited analyses, full GTO ranges for all formats, and unlimited stats feedback.</p>
-      <button class="paywall-btn" onclick="window.location.href='${STRIPE_URL}'">Upgrade to Pro — €29/mo</button>
-      <p class="paywall-note">Cancel anytime · Instant access</p>
-    </div>`;
-  el.classList.add('on');
+function getRangeKey(){
+  return `${document.getElementById('rp').value}-${document.getElementById('rst').value}-${document.getElementById('rs').value}`;
 }
 
-// ── NAV ──
-function goTo(id, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  el.classList.add('active');
-  if (id === 'ev') calcEV();
+function getCurrentRange(){
+  if(mode==='build')return currentBuilder;
+  return (window.GTO_RANGES&&window.GTO_RANGES[getRangeKey()])||null;
 }
 
-// ── SAMPLE ──
-const SAMPLE = `PokerStars Hand #234567890: Hold'em No Limit ($1/$2 USD) - 2024/03/10 21:45:00 ET\nTable 'Regulus A' 6-max Seat #3 is the button\nSeat 1: Player1 ($200)\nSeat 3: Hero ($220)\nSeat 5: Villain ($310)\nVillain: posts small blind $1\nHero: posts big blind $2\n*** HOLE CARDS ***\nDealt to Hero [Kh Qd]\nPlayer1: folds\nHero: raises $5 to $7\nVillain: calls $5\n*** FLOP *** [Ks 9h 3d]\nVillain: checks\nHero: bets $8\nVillain: calls $8\n*** TURN *** [Ks 9h 3d] [2c]\nVillain: checks\nHero: checks\n*** RIVER *** [Ks 9h 3d 2c] [Jh]\nVillain: bets $22\nHero: calls $22\n*** SHOW DOWN ***\nVillain: shows [Jd Jc] (three of a kind)\nHero: shows [Kh Qd] (pair)\nVillain collected $77`;
-function loadSample() { document.getElementById('handInput').value = SAMPLE; }
-function clearAnalyzer() {
-  document.getElementById('handInput').value = '';
-  document.getElementById('ares').classList.remove('on');
-  document.getElementById('aerr').classList.remove('on');
-}
-
-// ── API ──
-async function callAPI(messages, system) {
-  const body = { messages };
-  if (system) body.system = system;
-  const r = await fetch('/api/claude', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  if (!r.ok) throw new Error('API ' + r.status);
-  const d = await r.json();
-  return d.content.map(b => b.text || '').join('');
-}
-
-function showErr(id, msg) { const e = document.getElementById(id); e.textContent = 'Error: ' + msg; e.classList.add('on'); }
-function hideErr(id) { document.getElementById(id).classList.remove('on'); }
-
-function renderBlocks(text, cid, scoreId) {
-  const c = document.getElementById(cid); c.innerHTML = '';
-  const defs = [
-    { k: 'LEAKS', l: 'Leaks detected', cl: 'red' },
-    { k: 'EV', l: 'EV & Sizing', cl: 'gold' },
-    { k: 'STRENGTHS', l: 'Strengths', cl: 'felt' },
-    { k: 'ADVICE', l: 'Advice', cl: 'ink' },
-    { k: 'SCORE', l: 'Score', cl: 'felt' }
-  ];
-  let found = false;
-  for (const d of defs) {
-    const rx = new RegExp(d.k + '[:\\s]+(.*?)(?=(?:LEAKS|EV|STRENGTHS|ADVICE|SCORE)[:\\s]|$)', 'si');
-    const m = text.match(rx);
-    if (m && m[1].trim().length > 4) {
-      found = true;
-      if (d.k === 'SCORE' && scoreId) {
-        const sc = document.getElementById(scoreId);
-        if (sc) {
-          sc.textContent = m[1].trim().substring(0, 22).toUpperCase();
-          const t = m[1].toUpperCase();
-          sc.className = t.includes('EXCELLENT') || t.includes('STRONG') ? 'chip chip-g' : t.includes('AVERAGE') ? 'chip chip-a' : 'chip chip-r';
-        }
-      }
-      c.innerHTML += `<div class="block ${d.cl}"><div class="block-lbl">${d.l}</div><div class="block-body">${m[1].trim()}</div></div>`;
+function renderMatrix(){
+  const matrix=document.getElementById('matrix');
+  const range=getCurrentRange()||{};
+  matrix.innerHTML='';
+  for(let r=0;r<13;r++){
+    for(let c=0;c<13;c++){
+      const h=handLabel(r,c);
+      const action=range[h]||'F';
+      const cell=document.createElement('div');
+      cell.className='cell '+action;
+      cell.dataset.hand=h;
+      cell.textContent=h;
+      cell.onclick=()=>onCellClick(h);
+      matrix.appendChild(cell);
     }
   }
-  if (!found) c.innerHTML = `<div class="block ink"><div class="block-lbl">Analysis</div><div class="block-body">${text}</div></div>`;
+  updateStats(range);
 }
 
-// ── ANALYZER ──
-async function analyzeHand() {
-  const h = document.getElementById('handInput').value.trim();
-  if (!h) return;
-  if (!canUse('analyses')) {
-    showPaywall('ares', "You've used your 3 free hand analyses.");
+function onCellClick(h){
+  if(mode!=='build')return;
+  if(paint==='F')delete currentBuilder[h];
+  else currentBuilder[h]=paint;
+  renderMatrix();
+}
+
+function updateStats(range){
+  const hands=Object.keys(range).filter(h=>range[h]&&range[h]!=='F');
+  const totalCombos=hands.reduce((s,h)=>s+combos(h),0);
+  const raiseHands=hands.filter(h=>range[h]==='R');
+  const mixedHands=hands.filter(h=>range[h]==='M');
+  const threeBetHands=hands.filter(h=>range[h]==='B');
+  const totalRange=((totalCombos/1326)*100).toFixed(1);
+  const pfrCombos=raiseHands.reduce((s,h)=>s+combos(h),0)+mixedHands.reduce((s,h)=>s+combos(h)*0.5,0)+threeBetHands.reduce((s,h)=>s+combos(h),0);
+  const pfr=((pfrCombos/1326)*100).toFixed(1);
+  const threeBetPct=((threeBetHands.reduce((s,h)=>s+combos(h),0)/1326)*100).toFixed(1);
+  document.getElementById('stat-vpip').textContent=totalRange+'%';
+  document.getElementById('stat-pfr').textContent=pfr+'%';
+  document.getElementById('stat-3bet').textContent=threeBetPct+'%';
+  document.getElementById('stat-combos').textContent=totalCombos;
+  document.getElementById('range-info').textContent=`${totalRange}% range · ${totalCombos} combos`;
+}
+
+function refresh(){
+  const lock=isLocked();
+  const paywallArea=document.getElementById('paywall-area');
+  if(lock&&mode==='learn'){
+    paywallArea.innerHTML=renderPaywall(lock);
+    document.querySelector('.range-area').style.display='none';
+  }else{
+    paywallArea.innerHTML='';
+    document.querySelector('.range-area').style.display='grid';
+  }
+  const pos=document.getElementById('rp').value;
+  const stack=document.getElementById('rst').value;
+  const sit=document.getElementById('rs').value;
+  const fmt=document.getElementById('rf').value;
+  const sitLabel=sit==='open'?'Open':sit==='vs-open'?'vs Open':'vs 3-Bet';
+  document.getElementById('range-title').textContent=mode==='build'?'Build my range':`${pos} ${sitLabel} · ${stack}BB · ${fmt}`;
+  if(mode==='build'){
+    document.getElementById('tip-text').textContent="Click any cell to paint it. Right-click to clear. Save your range when done — Free plan: 3 saves max.";
+  }else{
+    const r=getCurrentRange();
+    if(!r){
+      document.getElementById('tip-text').textContent='No range available for this exact spot yet — try another situation. The Regular plan covers all common combinations.';
+    }else{
+      document.getElementById('tip-text').textContent=(window.RANGE_TIPS&&window.RANGE_TIPS[pos])||'GTO range loaded.';
+    }
+  }
+  document.getElementById('builder-panel').style.display=mode==='build'?'block':'none';
+  renderMatrix();
+}
+
+function renderPaywall(lockType){
+  const reason=lockType==='position'?'This position is part of the Regular library.':'Stack depths beyond 100bb are part of the Regular library.';
+  return `<div class="paywall"><div class="seal">EDGE</div><h3>Unlock the full library.</h3><p>${reason} All 8 positions × 4 stack depths × every common spot — for 9,99€ a month.</p><button class="paywall-btn" onclick="goToCheckout()">Go Regular · 9,99€/mo →</button><div class="paywall-note">Cancel anytime · Your saved ranges remain yours</div></div>`;
+}
+
+function clearBuilder(){if(mode!=='build')return;currentBuilder={};renderMatrix();}
+
+async function saveCustomRange(){
+  if(mode!=='build')return;
+  if(Object.keys(currentBuilder).length===0)return showToast('Paint at least one hand first.','error');
+  const name=prompt('Name this range:',`My range ${new Date().toLocaleDateString('en-GB')}`);
+  if(!name)return;
+  const sb=getSupa();
+  if(!sb){
+    const local=JSON.parse(localStorage.getItem('el_saved')||'[]');
+    local.push({id:'r'+Date.now(),name,data:{...currentBuilder},created_at:new Date().toISOString()});
+    localStorage.setItem('el_saved',JSON.stringify(local));
+    showToast('Range saved (demo).','success');return;
+  }
+  if(currentUser.plan==='free'){
+    const{count}=await sb.from('saved_ranges').select('*',{count:'exact',head:true}).eq('user_id',currentUser.id);
+    if(count>=3)return showToast('Free plan: 3 saved ranges max. Upgrade for unlimited.','error');
+  }
+  const{error}=await sb.from('saved_ranges').insert({user_id:currentUser.id,name,data:currentBuilder});
+  if(error)return showToast('Save failed: '+error.message,'error');
+  showToast('Range saved.','success');
+}
+
+async function loadSavedRanges(){
+  const container=document.getElementById('saved-content');
+  const sb=getSupa();
+  let saved=[];
+  if(sb&&currentUser){
+    const{data}=await sb.from('saved_ranges').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+    saved=data||[];
+  }else{saved=JSON.parse(localStorage.getItem('el_saved')||'[]');}
+  if(saved.length===0){
+    container.innerHTML=`<div class="empty-state"><h3>No saved ranges yet.</h3><p>Build a range in the explorer and save it. ${currentUser?.plan==='free'?'3 saves on Free.':'Unlimited on Regular.'}</p><button class="btn-inline" onclick="goTo('explorer',document.querySelector('[data-page=explorer]'))">Go to explorer →</button></div>`;
     return;
   }
-  hideErr('aerr'); document.getElementById('ares').classList.remove('on');
-  document.getElementById('aload').classList.add('on'); document.getElementById('abtn').disabled = true;
-  try {
-    const t = await callAPI([{ role: 'user', content: `Analyze this PokerStars hand. Reply ONLY in this format:\n\nLEAKS:\n[concrete mistakes]\n\nEV:\n[EV analysis each street]\n\nSTRENGTHS:\n[what hero did well]\n\nADVICE:\n[2-3 actionable tips]\n\nSCORE:\n[EXCELLENT / STRONG / AVERAGE / WEAK / CRITICAL]\n\nHand:\n${h}` }]);
-    useQuota('analyses');
-    renderBlocks(t, 'ablocks', 'ascore');
-    document.getElementById('ares').classList.add('on');
-  } catch (e) { showErr('aerr', e.message); }
-  finally { document.getElementById('aload').classList.remove('on'); document.getElementById('abtn').disabled = false; }
+  container.innerHTML='<div class="saved-list">'+saved.map(s=>`
+    <div class="saved-card">
+      <div class="saved-name">${escapeHtml(s.name)}</div>
+      <div class="saved-meta">${new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
+      <div class="mini-grid">${miniGridHtml(s.data||{})}</div>
+      <div class="saved-actions">
+        <button onclick="loadRangeIntoBuilder('${s.id}')">Open</button>
+        <button class="danger" onclick="deleteRange('${s.id}')">Delete</button>
+      </div>
+    </div>`).join('')+'</div>';
 }
 
-// ── RANGES ──
-const RANKS = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-function buildGrid(raise, call, mixed) {
-  const g = document.getElementById('rgrid'); g.innerHTML = '';
-  for (let i = 0; i < 13; i++) for (let j = 0; j < 13; j++) {
-    const r1 = RANKS[i], r2 = RANKS[j];
-    let h = i === j ? r1 + r2 : i < j ? r1 + r2 + 's' : r2 + r1 + 'o';
-    let cl = 'F';
-    if (raise.some(x => h === x || h.startsWith(x))) cl = 'R';
-    else if (call.some(x => h === x || h.startsWith(x))) cl = 'C';
-    else if (mixed.some(x => h === x || h.startsWith(x))) cl = 'M';
-    g.innerHTML += `<div class="rc ${cl}" title="${h}">${h}</div>`;
+function miniGridHtml(range){
+  let html='';
+  for(let r=0;r<13;r++)for(let c=0;c<13;c++){
+    const h=handLabel(r,c);
+    html+=`<div class="mc ${range[h]||'F'}"></div>`;
   }
-}
-async function getRange() {
-  const fmt = document.getElementById('rf').value, pos = document.getElementById('rp').value,
-    sit = document.getElementById('rs').value, stk = document.getElementById('rst').value,
-    lvl = document.getElementById('rlv').value;
-  if (!canUse('ranges')) {
-    showPaywall('rres', "You've used your 5 free range generations.");
-    return;
-  }
-  hideErr('rerr'); document.getElementById('rres').classList.remove('on');
-  document.getElementById('rload').classList.add('on'); document.getElementById('rbtn').disabled = true;
-  document.getElementById('rtitle').textContent = `${pos} — ${sit}`;
-  document.getElementById('rchip').textContent = stk;
-  try {
-    const raw = await callAPI([{ role: 'user', content: `GTO poker range. ONLY valid JSON, no markdown:\n{"raise":["AA"],"call":["TT"],"mixed":["99"],"explanation":"..."}\n\nSituation: ${fmt}, ${pos}, ${sit}, ${stk}, level: ${lvl}` }]);
-    let data;
-    try { data = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
-    catch { data = { raise: ['AA', 'KK', 'QQ', 'JJ', 'TT', 'AKs', 'AQs', 'AJs', 'KQs', 'AKo'], call: ['99', '88', 'AQo', 'KQo'], mixed: ['77', '66'], explanation: raw.substring(0, 400) }; }
-    useQuota('ranges');
-    buildGrid(data.raise || [], data.call || [], data.mixed || []);
-    document.getElementById('rexpl').textContent = data.explanation || '';
-    document.getElementById('rres').classList.add('on');
-  } catch (e) { showErr('rerr', e.message); }
-  finally { document.getElementById('rload').classList.remove('on'); document.getElementById('rbtn').disabled = false; }
+  return html;
 }
 
-// ── EV ──
-function calcEV() {
-  const pot = parseFloat(document.getElementById('ev-pot').value) || 100;
-  const bet = parseFloat(document.getElementById('ev-bet').value) || 50;
-  const eq = (parseFloat(document.getElementById('ev-eq').value) || 35) / 100;
-  const fe = (parseFloat(document.getElementById('ev-fe').value) || 40) / 100;
-  const totalPot = pot + bet; const potOdds = bet / totalPot;
-  const evCall = (eq * pot) - (1 - eq) * bet;
-  const evBet = fe * pot + (1 - fe) * (eq * totalPot - bet);
-  document.getElementById('evcall').textContent = (evCall >= 0 ? '+' : '') + evCall.toFixed(1) + ' BB';
-  document.getElementById('evcall').style.color = evCall >= 0 ? 'var(--felt-600)' : 'var(--carmine-600)';
-  document.getElementById('evbet').textContent = (evBet >= 0 ? '+' : '') + evBet.toFixed(1) + ' BB';
-  document.getElementById('evbet').style.color = evBet >= 0 ? 'var(--felt-600)' : 'var(--carmine-600)';
-  document.getElementById('evpotodds').textContent = (potOdds * 100).toFixed(1) + '%';
-  document.getElementById('evequity').textContent = (eq * 100).toFixed(0) + '%';
-  const ok = eq > potOdds;
-  const dec = document.getElementById('evdecision');
-  dec.textContent = ok ? 'CALL ✓' : 'FOLD ✗';
-  dec.className = ok ? 'chip chip-g' : 'chip chip-r';
+async function loadRangeIntoBuilder(id){
+  const sb=getSupa();let row;
+  if(sb&&currentUser){const{data}=await sb.from('saved_ranges').select('*').eq('id',id).single();row=data;}
+  else{row=JSON.parse(localStorage.getItem('el_saved')||'[]').find(r=>r.id===id);}
+  if(!row)return;
+  currentBuilder=row.data||{};
+  mode='build';
+  document.querySelectorAll('#mode-toggle button').forEach(b=>b.classList.toggle('active',b.dataset.mode==='build'));
+  goTo('explorer',document.querySelector('[data-page=explorer]'));
+  refresh();
 }
 
-// ── STATS ──
-async function analyzeStats() {
-  const v = document.getElementById('inp-vpip').value, p = document.getElementById('inp-pfr').value,
-    b = document.getElementById('inp-3b').value, w = document.getElementById('inp-wtsd').value;
-  if (!v && !p) return;
-  if (!canUse('stats')) {
-    showPaywall('sres', "You've used your free stats analysis.");
-    return;
-  }
-  document.getElementById('st-vpip').textContent = v + '%';
-  document.getElementById('st-pfr').textContent = p + '%';
-  document.getElementById('st-3b').textContent = b + '%';
-  document.getElementById('st-wtsd').textContent = w + '%';
-  document.getElementById('sres').classList.remove('on');
-  document.getElementById('sload').classList.add('on');
-  document.getElementById('statsbtn').disabled = true;
-  try {
-    const t = await callAPI([{ role: 'user', content: `Analyze these poker stats. Format:\n\nLEAKS:\n[problems]\n\nSTRENGTHS:\n[good signs]\n\nADVICE:\n[concrete adjustments]\n\nVPIP=${v}%, PFR=${p}%, 3-Bet=${b}%, WTSD=${w}%` }]);
-    useQuota('stats');
-    renderBlocks(t, 'sblocks', null);
-    document.getElementById('sres').classList.add('on');
-  } catch (e) { showErr('aerr', e.message); }
-  finally { document.getElementById('sload').classList.remove('on'); document.getElementById('statsbtn').disabled = false; }
+async function deleteRange(id){
+  if(!confirm('Delete this range permanently?'))return;
+  const sb=getSupa();
+  if(sb&&currentUser){await sb.from('saved_ranges').delete().eq('id',id);}
+  else{localStorage.setItem('el_saved',JSON.stringify(JSON.parse(localStorage.getItem('el_saved')||'[]').filter(r=>r.id!==id)));}
+  showToast('Range deleted.','success');
+  loadSavedRanges();
 }
 
-// ── INIT ──
-(function init() {
-  const stored = localStorage.getItem('el_user');
-  if (stored) {
-    // Check if came from landing page already logged in
-    currentUser = JSON.parse(stored);
-    bootApp();
-  } else {
-    // Show signup by default
-    showAuthTab('signup');
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+async function goToCheckout(){
+  if(!currentUser)return;
+  try{
+    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:currentUser.id,email:currentUser.email})});
+    const{url,error}=await res.json();
+    if(error)throw new Error(error);
+    window.location.href=url;
+  }catch(e){
+    window.location.href='https://buy.stripe.com/00w7sM2IZ6Bld1xewWcMM00?prefilled_email='+encodeURIComponent(currentUser.email);
   }
+}
+
+async function openBillingPortal(){
+  if(!currentUser)return;
+  if(currentUser.plan!=='pro')return showToast('You need a Regular subscription first.','error');
+  try{
+    const res=await fetch('/api/billing-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:currentUser.id,email:currentUser.email})});
+    const{url,error}=await res.json();
+    if(error)throw new Error(error);
+    window.location.href=url;
+  }catch(e){showToast('Billing portal unavailable. Email support@edgeleak.app','error');}
+}
+
+['rf','rp','rst','rs'].forEach(id=>document.getElementById(id).addEventListener('change',refresh));
+document.querySelectorAll('#mode-toggle button').forEach(btn=>{
+  btn.onclick=()=>{document.querySelectorAll('#mode-toggle button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');mode=btn.dataset.mode;refresh();};
+});
+document.querySelectorAll('.paint-btn').forEach(btn=>{
+  btn.onclick=()=>{document.querySelectorAll('.paint-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');paint=btn.dataset.paint;};
+});
+document.addEventListener('contextmenu',e=>{
+  if(mode!=='build')return;
+  const cell=e.target.closest('.cell');
+  if(!cell)return;
+  e.preventDefault();
+  delete currentBuilder[cell.dataset.hand];
+  renderMatrix();
+});
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show '+(type||'');
+  setTimeout(()=>{t.className='toast '+(type||'')},3000);
+}
+
+(async()=>{
+  const sb=getSupa();
+  if(sb){
+    const{data:{session}}=await sb.auth.getSession();
+    if(session){await loadUserAndBoot(session.user);return;}
+  }else{
+    const stored=localStorage.getItem('el_user');
+    if(stored){currentUser=JSON.parse(stored);bootApp();return;}
+  }
+  showAuthTab('signup');
 })();
 </script>
 </body>
