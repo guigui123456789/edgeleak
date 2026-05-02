@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EdgeLeak — Politique de confidentialité</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a3a26'/%3E%3Ctext x='50%25' y='66%25' text-anchor='middle' fill='%23d4af37' font-family='Georgia' font-style='italic' font-size='20'%3EE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Geist:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--felt-900:oklch(0.18 0.04 155);--cream-50:oklch(0.985 0.008 90);--cream-300:oklch(0.89 0.016 82);--gold-500:oklch(0.78 0.09 85);--carmine-600:oklch(0.55 0.18 25);--serif:"Instrument Serif",Georgia,serif;--body:"Newsreader",Georgia,serif;--sans:"Geist",sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--body);background:var(--felt-900);color:var(--cream-50);line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:80px 32px}
+nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:60px}
+.logo{font-family:var(--serif);font-size:21px;font-style:italic;color:var(--cream-50);text-decoration:none}
+.logo .acc{color:var(--gold-500)}
+.back{font-family:var(--sans);font-size:13px;color:rgba(255,255,255,.6);text-decoration:none}
+.back:hover{color:var(--cream-50)}
+h1{font-family:var(--serif);font-style:italic;font-size:48px;margin-bottom:8px;letter-spacing:-.02em}
+h1 em{color:var(--gold-500)}
+.updated{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:48px;display:block}
+h2{font-family:var(--serif);font-style:italic;font-size:24px;color:var(--cream-50);margin:36px 0 14px;letter-spacing:-.01em}
+p{color:rgba(255,255,255,.8);margin-bottom:14px;font-size:15px}
+ul{margin:0 0 14px 24px;color:rgba(255,255,255,.8);font-size:15px}
+li{margin-bottom:6px}
+a{color:var(--gold-500);text-decoration:none}
+a:hover{text-decoration:underline}
+.note{background:rgba(180,55,40,.08);border-left:3px solid var(--carmine-600);padding:14px 18px;border-radius:6px;font-size:14px;margin:24px 0;color:rgba(255,255,255,.85)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <a href="/" class="logo">Edge<span class="acc">Leak</span></a>
+  <a href="/" class="back">← Retour à l'accueil</a>
+</nav>
+
+<h1>Politique de <em>confidentialité</em></h1>
+<span class="updated">Dernière mise à jour : 1er mai 2026 · Conforme RGPD</span>
+
+<div class="note">
+  <strong>En bref :</strong> EdgeLeak collecte le strict minimum (email, nom, ranges sauvegardées). Tout vit en région UE (Supabase Paris). On ne vend rien à personne. Tu peux exporter ou supprimer tes données à tout moment depuis ton compte.
+</div>
+
+<h2>1. Responsable du traitement</h2>
+<p>Le responsable du traitement des données personnelles est EdgeLeak SAS, joignable par email à <a href="mailto:hello@edgeleak.com">hello@edgeleak.com</a>.</p>
+
+<h2>2. Données collectées</h2>
+<p>Lors de l'inscription :</p>
+<ul>
+  <li>Nom d'affichage (prénom suffisant)</li>
+  <li>Adresse email</li>
+  <li>Mot de passe (haché avec bcrypt par Supabase Auth, jamais stocké en clair)</li>
+</ul>
+<p>Lors de l'utilisation (optionnel, peut être passé) :</p>
+<ul>
+  <li>Format de jeu favori (cash, MTT, etc.)</li>
+  <li>Stakes habituelles (NL10 → NL2000)</li>
+  <li>Objectif personnel (graduate, full-time, etc.)</li>
+  <li>Pays et langue préférée</li>
+  <li>Ranges personnalisées que vous créez et sauvegardez</li>
+</ul>
+<p>Lors d'un abonnement payant :</p>
+<ul>
+  <li>Identifiant client Stripe (pour gérer la facturation)</li>
+  <li>Statut d'abonnement</li>
+</ul>
+<p><strong>EdgeLeak ne collecte JAMAIS :</strong> votre numéro de carte bancaire (géré par Stripe), votre historique de mains de poker, vos sessions de jeu, votre comportement à la table.</p>
+
+<h2>3. Hébergement</h2>
+<p>Toutes les données utilisateur sont hébergées par Supabase (région Europe — Paris, eu-west-3). Les paiements sont traités par Stripe Payments Europe Ltd (Irlande). Le code du site est déployé sur Vercel (région Europe).</p>
+
+<h2>4. Finalités du traitement</h2>
+<ul>
+  <li>Vous fournir l'accès à votre compte et à vos ranges sauvegardées</li>
+  <li>Vous facturer correctement si vous êtes abonné</li>
+  <li>Vous envoyer un email récapitulatif hebdomadaire si vous l'avez activé</li>
+  <li>Améliorer le Service (statistiques anonymes d'usage)</li>
+</ul>
+
+<h2>5. Bases légales</h2>
+<ul>
+  <li>Exécution du contrat (création de compte, fourniture du service)</li>
+  <li>Obligation légale (facturation, comptabilité)</li>
+  <li>Intérêt légitime (sécurité, prévention de la fraude)</li>
+  <li>Consentement (pour les emails facultatifs)</li>
+</ul>
+
+<h2>6. Durée de conservation</h2>
+<ul>
+  <li>Compte actif : tant que vous êtes utilisateur du Service</li>
+  <li>Compte supprimé : suppression immédiate (sauf factures conservées 10 ans pour obligation légale)</li>
+  <li>Logs techniques : 30 jours maximum</li>
+</ul>
+
+<h2>7. Vos droits (RGPD)</h2>
+<p>Vous pouvez à tout moment :</p>
+<ul>
+  <li><strong>Accéder</strong> à vos données depuis Settings → Profile</li>
+  <li><strong>Rectifier</strong> vos informations depuis Settings</li>
+  <li><strong>Exporter</strong> toutes vos données (JSON) depuis Settings → Data & privacy</li>
+  <li><strong>Supprimer</strong> votre compte intégralement depuis Settings → Data & privacy → Delete account</li>
+  <li><strong>Vous opposer</strong> aux emails marketing (lien désinscription dans chaque email)</li>
+</ul>
+<p>Pour exercer vos droits, vous pouvez aussi écrire à <a href="mailto:hello@edgeleak.com">hello@edgeleak.com</a>.</p>
+<p>En cas de désaccord, vous pouvez saisir la CNIL (<a href="https://www.cnil.fr">cnil.fr</a>).</p>
+
+<h2>8. Cookies</h2>
+<p>EdgeLeak utilise uniquement des cookies <strong>essentiels</strong> (session d'authentification Supabase). Aucun cookie de tracking, aucun cookie publicitaire, aucun pixel Facebook/Google. Pas de bandeau cookie nécessaire conformément aux directives CNIL.</p>
+
+<h2>9. Sous-traitants</h2>
+<p>Pour fonctionner, EdgeLeak utilise les sous-traitants suivants, tous conformes RGPD :</p>
+<ul>
+  <li><strong>Supabase</strong> (États-Unis / hébergement UE) — Auth, base de données</li>
+  <li><strong>Stripe</strong> (Irlande) — Paiements</li>
+  <li><strong>Vercel</strong> (États-Unis / Europe) — Hébergement frontend</li>
+</ul>
+
+<h2>10. Modifications</h2>
+<p>Cette politique peut évoluer. Toute modification importante vous sera notifiée par email avant prise d'effet.</p>
+
+<h2>11. Contact</h2>
+<p>Questions, demandes RGPD : <a href="mailto:hello@edgeleak.com">hello@edgeleak.com</a></p>
+
+</div>
+</body>
+</html>

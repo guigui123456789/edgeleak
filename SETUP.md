@@ -1,62 +1,58 @@
-# EdgeLeak — Setup Guide
+# EdgeLeak — Setup Guide (v4.2)
 
-Le site marche en **mode démo** dès maintenant (auth/sauvegarde via `localStorage`). Pour passer en **production réelle** (vrais comptes, vrais paiements, vraie base de données), suis les 3 étapes ci-dessous.
-
-Compte à passer : ~30 minutes au total. Aucune ligne de commande nécessaire.
+Site **prêt en production** avec : 3 plans Stripe, auth Supabase, onboarding 4 étapes, settings i18n FR/EN, suppression compte RGPD, pages légales.
 
 ---
 
-## 🟢 État actuel — Ce qui marche déjà
+## 🟢 État du projet
 
-- ✅ Landing page (`index.html`) — refondue, focus 100 % GTO ranges
-- ✅ App (`app.html`) — explorer, builder, saved ranges, settings
-- ✅ Bibliothèque GTO (`ranges.js`) — 30+ ranges pré-chargées (UTG → BB, 100/40/20bb, RFI / vs open / vs 3-bet)
-- ✅ Compte Stripe connecté · produit "EdgeLeak Pro" à 9,99€/mois existe (`price_1TRg2nLqC6EEycUgd0TXBiua`)
-- ✅ Endpoints API : `/api/checkout`, `/api/billing-portal`, `/api/webhook` (Stripe)
-- ⚠️  Mode démo actif tant que Supabase n'est pas configuré (auth + saves dans le navigateur uniquement)
+- ✅ **Landing** (`index.html`) — thème vert felt, 3 tiers
+- ✅ **Onboarding** (`onboarding.html`) — 4 étapes split-screen
+- ✅ **App** (`app.html`) — green theme, Settings 5 sections, language toggle, password reset, delete account
+- ✅ **Pages légales** : `terms.html`, `privacy.html`, `compliance.html`, `404.html`
+- ✅ **Stripe** : 2 produits Live (Hobbyist 3,99€/mo + Regular 9,99€/mo) avec TVA auto-calculée
+- ✅ **Bibliothèque** : 46+ ranges GTO MTT
+- ✅ **API** : `/api/checkout`, `/api/billing-portal`, `/api/webhook`, `/api/delete-account`
 
 ---
 
-## 1️⃣  Créer ton projet Supabase
+## ⚠️ Migration de la DB Supabase (à faire UNE FOIS)
 
-1. Va sur [supabase.com](https://supabase.com) → **Start your project** → connecte-toi avec GitHub.
-2. **New project** :
-   - Name : `edgeleak`
-   - Password : génère-en un fort, garde-le quelque part
-   - Region : `Europe (Paris) — eu-west-3`
-   - Plan : **Free** (largement suffisant pour démarrer)
-3. Attends ~2 min que le projet soit provisionné.
-
-### Récupérer tes clés
-
-Dans Supabase → **Project Settings (icône engrenage en bas) → API** :
-- **Project URL** → ressemble à `https://xxxxxxxxxx.supabase.co`
-- **anon public key** → commence par `eyJ...` (publique, safe à exposer)
-- **service_role key** → commence par `eyJ...` (**SECRÈTE — jamais dans le code public**)
-
-### Coller dans `config.js`
-
-Édite `config.js` à la racine du projet et remplace les placeholders :
-
-```js
-window.SUPABASE_URL = 'https://xxxxxxxxxx.supabase.co';
-window.SUPABASE_ANON_KEY = 'eyJhbG...ton_anon_key';
-window.STRIPE_PRICE_ID = 'price_1TRg2nLqC6EEycUgd0TXBiua';
-```
-
-Commit et push via GitHub Desktop.
-
-### Créer les tables
-
-Dans Supabase → **SQL Editor → New query**, colle ce SQL et clique **Run** :
+Si tu as déjà la table `profiles` v1, il faut ajouter les nouvelles colonnes pour les 3 tiers + onboarding + langue. Va dans Supabase → **SQL Editor** → **New query**, colle ça :
 
 ```sql
--- Profiles : 1 ligne par utilisateur, créée à l'inscription
+-- Plan tiering
+alter table public.profiles add column if not exists plan_type text default 'free' check (plan_type in ('free','hobbyist','regular'));
+
+-- Onboarding fields
+alter table public.profiles add column if not exists language text default 'fr';
+alter table public.profiles add column if not exists country text;
+alter table public.profiles add column if not exists formats text[] default '{}';
+alter table public.profiles add column if not exists stakes text;
+alter table public.profiles add column if not exists goal text;
+alter table public.profiles add column if not exists weekly_review boolean default true;
+alter table public.profiles add column if not exists product_updates boolean default true;
+
+-- Backfill plan_type from old is_pro flag
+update public.profiles set plan_type = 'regular' where is_pro = true and (plan_type is null or plan_type = 'free');
+```
+
+Si c'est ta **première installation** (pas de table existante), utilise plutôt le SQL complet :
+
+```sql
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
   display_name text,
+  plan_type text default 'free' check (plan_type in ('free','hobbyist','regular')),
   is_pro boolean default false,
+  language text default 'fr',
+  country text,
+  formats text[] default '{}',
+  stakes text,
+  goal text,
+  weekly_review boolean default true,
+  product_updates boolean default true,
   stripe_customer_id text,
   stripe_subscription_id text,
   plan_started_at timestamptz,
@@ -64,7 +60,6 @@ create table public.profiles (
   created_at timestamptz default now()
 );
 
--- Ranges sauvegardées par l'utilisateur
 create table public.saved_ranges (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -73,7 +68,6 @@ create table public.saved_ranges (
   created_at timestamptz default now()
 );
 
--- Sécurité : chaque utilisateur ne voit que ses données
 alter table public.profiles enable row level security;
 alter table public.saved_ranges enable row level security;
 
@@ -86,108 +80,98 @@ create policy "users insert own ranges"  on saved_ranges for insert with check (
 create policy "users delete own ranges"  on saved_ranges for delete using (auth.uid() = user_id);
 ```
 
-### Désactiver la confirmation email (optionnel pour MVP)
+---
 
-Pour que les inscriptions fonctionnent immédiatement sans envoyer de mail :
-- **Authentication → Providers → Email**
-- Décoche **Confirm email**
-- Save
+## 💳 Stripe — TVA automatique (recommandé)
 
-(Tu peux la réactiver plus tard, après avoir configuré un service SMTP.)
+Le checkout est configuré pour `automatic_tax[enabled]=true`. Pour que ça marche en production :
+
+1. Stripe Dashboard → **Tax** (menu gauche)
+2. Active **Stripe Tax** pour ton compte
+3. Renseigne ton adresse de société (Paris, France)
+4. Active la TVA pour les pays UE (cocher l'Europe en bloc)
+5. Stripe collectera automatiquement la TVA française 20% pour les particuliers FR, et la TVA du pays acheteur pour les autres pays UE
+
+Si tu ne veux pas activer Stripe Tax tout de suite (et garder le prix HT), retire cette ligne dans `api/checkout.js` :
+```js
+params.append('automatic_tax[enabled]', 'true');
+```
 
 ---
 
-## 2️⃣  Configurer les variables d'environnement Vercel
+## 🌐 Variables d'environnement Vercel (rappel)
 
-Dans Vercel → ton projet `edgeleak` → **Settings → Environment Variables** → ajoute pour **Production** :
+Toutes ces variables doivent être set dans Vercel → Settings → Environment Variables (Production) :
 
 | Nom | Valeur |
 |---|---|
-| `STRIPE_SECRET_KEY` | `sk_live_...` (Stripe Dashboard → Developers → API keys → Secret key) |
-| `STRIPE_PRICE_ID` | `price_1TRg2nLqC6EEycUgd0TXBiua` |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` (créé à l'étape 3 ci-dessous) |
-| `APP_URL` | `https://edgeleak.app` (ou ton URL Vercel) |
-| `SUPABASE_URL` | ton URL Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | ta service_role key Supabase |
+| `STRIPE_SECRET_KEY` | `sk_live_...` |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_...` |
+| `APP_URL` | `https://www.edgeleak.com` |
+| `SUPABASE_URL` | `https://uqeqbjkgfsmqjakuotfy.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_...` (⚠️ ne JAMAIS commit) |
 
-⚠️ **Ne mets jamais** `SUPABASE_SERVICE_ROLE_KEY` ou `STRIPE_SECRET_KEY` dans `config.js` ou tout fichier commité — ce sont des clés serveur, elles ne vivent QUE dans Vercel.
-
-Clique **Save**. Vercel va automatiquement redéployer.
+Pas besoin de mettre `STRIPE_PRICE_ID` — l'API utilise désormais le price ID envoyé par le client (avec whitelist server-side).
 
 ---
 
-## 3️⃣  Configurer le Webhook Stripe
+## 🧪 Tests à faire après push
 
-Le webhook permet à Stripe de notifier ton site quand un paiement réussit, pour activer le plan Regular dans Supabase.
-
-1. Stripe Dashboard → **Developers → Webhooks → Add endpoint**
-2. **Endpoint URL** : `https://edgeleak.app/api/webhook` (ton domaine + `/api/webhook`)
-3. **Events to send** : sélectionne ces 3 :
-   - `checkout.session.completed`
-   - `customer.subscription.updated`
-   - `customer.subscription.deleted`
-4. Clique **Add endpoint**
-5. Sur la page de l'endpoint créé, **Signing secret → Reveal** → copie la valeur (`whsec_...`)
-6. Retourne dans Vercel et colle cette valeur dans `STRIPE_WEBHOOK_SECRET` (étape 2)
-7. Vercel redéploie
+1. **Landing FR/EN** : ouvrir `/`, cliquer le toggle FR↔EN en haut à droite, vérifier que les textes se traduisent.
+2. **Onboarding** : `/onboarding.html` → 4 étapes, créer un compte test, vérifier que le profil est créé avec `formats`, `stakes`, `goal`, `weekly_review`.
+3. **Paiement Hobbyist** : depuis la landing, cliquer "Choisir Hobbyist → " → Stripe Checkout doit afficher 3,99€/mois → tester avec carte test (mode test) ou refunder en mode live.
+4. **Paiement Regular** : pareil, doit afficher 9,99€/mois.
+5. **Webhook** : après paiement, vérifier dans Supabase → `profiles` que `plan_type` = `hobbyist` ou `regular` et `is_pro` = `true`.
+6. **Settings** : tester chaque section (Profile, Game, Billing, Data & privacy, Notifications) — sauvegarder un nom, changer la langue, exporter les données, etc.
+7. **Suppression de compte** : dans Settings → Data & privacy → Delete forever → tape EFFACER → vérifier que le compte est supprimé de Supabase Auth.
+8. **Pages légales** : visiter `/terms`, `/privacy`, `/compliance` — toutes doivent charger.
+9. **404** : visiter `/blabla-page-inexistante` → page 404 custom.
 
 ---
 
-## 4️⃣  Tester
-
-1. Va sur `https://edgeleak.app/`
-2. Clique **Start free** → crée un compte test avec ton email
-3. Vérifie dans Supabase → **Table Editor → profiles** : ta ligne doit apparaître avec `is_pro = false`
-4. Sur `/app.html` clique **Upgrade · 9,99€/mo** → tu es redirigé vers Stripe Checkout
-5. Utilise une carte de test Stripe : `4242 4242 4242 4242` · n'importe quelle date future · n'importe quel CVC
-6. Après paiement, retour sur `/app.html?checkout=success` → tu vois le toast "Welcome to Regular"
-7. Vérifie dans Supabase → `profiles` : ta ligne doit maintenant avoir `is_pro = true` (mis à jour par le webhook)
-8. Toutes les positions et stack depths sont débloquées dans l'explorer ✅
-
----
-
-## 📁 Architecture des fichiers
+## 📁 Architecture
 
 ```
 edgeleak/
-├── index.html          ← Landing page
-├── app.html            ← Application (auth + range explorer + saved + settings)
-├── config.js           ← Clés publiques Supabase + Stripe price ID  (PUBLIC)
-├── ranges.js           ← Bibliothèque GTO (~30+ ranges) + tips coach
-├── package.json        ← Dépendance: stripe (pour le webhook)
-├── vercel.json         ← Config Vercel
+├── index.html              ← Landing v2 (thème vert, 3 tiers, i18n)
+├── onboarding.html         ← Flow signup 4 étapes
+├── app.html                ← Application (green theme, settings 5-section)
+├── terms.html              ← CGU FR
+├── privacy.html            ← Politique confidentialité RGPD
+├── compliance.html         ← Conformité opérateurs poker
+├── 404.html                ← Page 404 custom
+├── config.js               ← Clés publiques + i18n FR/EN + plan capabilities
+├── ranges.js               ← Bibliothèque GTO 46+ ranges
+├── package.json            ← stripe dep
+├── vercel.json             ← Routes + CORS
 ├── api/
-│   ├── checkout.js         ← Crée une session Stripe Checkout
-│   ├── billing-portal.js   ← Ouvre le Customer Portal Stripe
-│   ├── webhook.js          ← Reçoit les events Stripe → update Supabase
-│   └── claude.js           ← (legacy, plus utilisé — peut être supprimé)
-└── SETUP.md            ← Ce fichier
+│   ├── checkout.js         ← Stripe Checkout (price ID whitelist + TVA)
+│   ├── billing-portal.js   ← Customer portal
+│   ├── webhook.js          ← Sync 3 plans → Supabase
+│   ├── delete-account.js   ← Suppression RGPD complète
+│   └── claude.js           ← (legacy, plus utilisé)
+└── SETUP.md                ← Ce fichier
 ```
 
 ---
 
-## 🚨 Si quelque chose ne marche pas
+## ✅ Ce qui est conforme RGPD / loi française
 
-| Symptôme | Diagnostic |
-|---|---|
-| Inscription dit "Demo mode: …" | `config.js` a encore les placeholders → étape 1 |
-| Bouton Upgrade redirige vers buy.stripe.com (pas vers Checkout custom) | `STRIPE_SECRET_KEY` manquant côté Vercel → étape 2 |
-| Paiement réussi mais `is_pro` reste à `false` | Webhook pas configuré → étape 3. Vérifie l'onglet **Webhooks** de Stripe pour voir les delivery attempts |
-| `/api/webhook` retourne 400 "signature failed" | `STRIPE_WEBHOOK_SECRET` ne correspond pas — recopie-le depuis Stripe |
-| RLS errors dans la console | Le SQL des policies n'a pas été exécuté → étape 1 |
+- Pas de cookies tracking (uniquement session Supabase)
+- Suppression compte fonctionnelle (RGPD art. 17)
+- Export données (RGPD art. 20)
+- Conservation données minimale
+- Hébergement EU (Supabase Paris)
+- Mentions légales complètes
+- TVA collectée automatiquement par Stripe pour vente UE
+- Politique de confidentialité accessible en bas de chaque page
 
----
+## ❌ Ce qui reste à faire pour une vraie commercialisation
 
-## 🎯 Roadmap future (non bloquant pour le MVP)
-
-- [ ] Ajouter plus de ranges (Cash 6-max, vs 3-bet pour toutes positions, 4-bet pots)
-- [ ] Mode quiz (l'app te montre une main, tu réponds raise/call/fold)
-- [ ] Export PNG des ranges
-- [ ] Page `/about`, `/terms`, `/privacy` (obligatoire pour Stripe en prod)
-- [ ] SMTP via Resend pour les emails de confirmation
-- [ ] Domaine custom + DNS (si pas déjà fait)
-- [ ] Analytics (Plausible / Umami — sans cookies)
-
----
-
-Si tu bloques sur une étape, reviens dans le chat et dis-moi où ça coince. Je te guide ou je débogue avec toi.
+- Faire valider les CGU/Privacy par un avocat (les templates sont du démarrage MVP)
+- Activer Stripe Tax dans le dashboard Stripe
+- Configurer SMTP (Resend, Postmark) pour les emails de confirmation Supabase
+- Réactiver email confirmation dans Supabase une fois SMTP set
+- Ajouter analytics privacy-friendly (Plausible recommandé)
+- Étoffer la bibliothèque (200+ ranges pour vraiment justifier le prix)
+- Enregistrer EdgeLeak SAS au RCS si tu veux vraiment commercialiser

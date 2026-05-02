@@ -3,20 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EdgeLeak — GTO Ranges, instantly browsable.</title>
-<meta name="description" content="A library of GTO-true poker ranges for cash and tournaments. Searchable. Filterable. Built for players who study.">
+<title>EdgeLeak — Une bibliothèque de ranges GTO, instantanément consultable.</title>
+<meta name="description" content="Ranges GTO pour cash et tournoi, recherchables et color-codées par fréquence. Construit à Paris pour les joueurs qui étudient.">
+<meta property="og:title" content="EdgeLeak — Ranges GTO">
+<meta property="og:description" content="Une bibliothèque de ranges GTO instantanément consultable.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a3a26'/%3E%3Ctext x='50%25' y='66%25' text-anchor='middle' fill='%23d4af37' font-family='Georgia' font-style='italic' font-size='20'%3EE%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --felt-900:oklch(0.20 0.04 155);--felt-800:oklch(0.26 0.05 155);--felt-700:oklch(0.32 0.06 155);
-  --felt-600:oklch(0.42 0.07 155);--felt-500:oklch(0.55 0.08 155);--felt-400:oklch(0.65 0.08 155);
-  --cream-50:oklch(0.985 0.008 90);--cream-100:oklch(0.97 0.012 88);
-  --cream-200:oklch(0.94 0.014 85);--cream-300:oklch(0.89 0.016 82);
-  --ink-900:oklch(0.18 0.012 60);--ink-700:oklch(0.32 0.012 60);
-  --ink-500:oklch(0.50 0.012 60);--ink-300:oklch(0.78 0.008 60);
-  --carmine-700:oklch(0.42 0.16 25);--carmine-600:oklch(0.52 0.18 25);--carmine-500:oklch(0.60 0.18 25);
-  --gold-500:oklch(0.78 0.09 85);--gold-400:oklch(0.85 0.08 85);
+  --felt-950:oklch(0.14 0.03 155);
+  --felt-900:oklch(0.18 0.04 155);
+  --felt-800:oklch(0.22 0.05 155);
+  --felt-700:oklch(0.30 0.06 155);
+  --felt-600:oklch(0.42 0.07 155);
+  --cream-50:oklch(0.985 0.008 90);
+  --cream-100:oklch(0.97 0.012 88);
+  --cream-200:oklch(0.94 0.014 85);
+  --cream-300:oklch(0.89 0.016 82);
+  --ink-900:oklch(0.18 0.012 60);
+  --ink-700:oklch(0.32 0.012 60);
+  --ink-500:oklch(0.50 0.012 60);
+  --ink-300:oklch(0.78 0.008 60);
+  --carmine-700:oklch(0.42 0.16 25);
+  --carmine-600:oklch(0.55 0.18 25);
+  --carmine-500:oklch(0.62 0.18 25);
+  --gold-500:oklch(0.78 0.09 85);
+  --gold-400:oklch(0.85 0.08 85);
   --serif:"Instrument Serif","Newsreader",Georgia,serif;
   --body:"Newsreader",Georgia,serif;
   --sans:"Geist",-apple-system,sans-serif;
@@ -24,7 +38,8 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--body);color:var(--ink-900);background:var(--cream-100);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:var(--body);color:var(--cream-100);background:var(--felt-900);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(ellipse at 30% 0%,var(--felt-700) 0%,transparent 50%),radial-gradient(ellipse at 70% 100%,var(--felt-700) 0%,transparent 60%);pointer-events:none;z-index:-1}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -34,199 +49,185 @@ body{font-family:var(--body);color:var(--ink-900);background:var(--cream-100);-w
 @keyframes spin{to{transform:rotate(360deg)}}
 .anim-fadeup{animation:fadeUp .8s cubic-bezier(.22,1,.36,1) both}
 .anim-fadein{animation:fadeIn .7s ease both}
-.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 56px;background:rgba(247,244,237,.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--cream-300);animation:slideDown .5s ease both}
-.nav-logo{font-family:var(--serif);font-size:21px;font-style:italic;letter-spacing:-.02em;color:var(--ink-900);text-decoration:none;display:inline-flex;align-items:baseline}
-.nav-logo .acc{color:var(--carmine-600);font-style:italic}
-.nav-logo .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--carmine-600);margin-left:6px;align-self:center}
-.nav-links{display:flex;align-items:center;gap:36px}
-.nav-links a{font-family:var(--sans);font-size:13px;color:var(--ink-500);text-decoration:none;transition:color .15s;letter-spacing:.01em}
-.nav-links a:hover{color:var(--ink-900)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 56px;background:rgba(27,42,33,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.05);animation:slideDown .5s ease both}
+.nav-logo{font-family:var(--serif);font-size:21px;font-style:italic;letter-spacing:-.02em;color:var(--cream-50);text-decoration:none;display:inline-flex;align-items:baseline}
+.nav-logo .acc{color:var(--gold-500);font-style:italic}
+.nav-logo .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--carmine-500);margin-left:6px;align-self:center}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-family:var(--sans);font-size:13px;color:rgba(255,255,255,.65);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--cream-50)}
 .nav-actions{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:inline-flex;background:rgba(255,255,255,.06);border-radius:8px;padding:3px;margin-right:6px}
+.lang-toggle button{background:transparent;border:none;color:rgba(255,255,255,.5);padding:5px 10px;border-radius:5px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:all .15s}
+.lang-toggle button.active{background:rgba(255,255,255,.1);color:var(--cream-50)}
 .btn{font-family:var(--sans);font-size:13px;font-weight:500;padding:9px 20px;border-radius:999px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;text-decoration:none;white-space:nowrap}
 .btn:hover{transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:var(--ink-700);border:1px solid transparent}
-.btn-ghost:hover{background:var(--cream-200)}
-.btn-primary{background:var(--ink-900);color:var(--cream-50)}
-.btn-primary:hover{background:var(--felt-800)}
+.btn-ghost{background:transparent;color:var(--cream-100);border:1px solid rgba(255,255,255,.15)}
+.btn-ghost:hover{background:rgba(255,255,255,.05)}
+.btn-primary{background:var(--cream-50);color:var(--ink-900)}
+.btn-primary:hover{background:var(--gold-400)}
 .btn-felt{background:var(--felt-700);color:var(--cream-50)}
 .btn-felt:hover{background:var(--felt-600)}
-.btn-cream{background:var(--cream-50);color:var(--ink-900);border:1px solid var(--cream-300)}
-.btn-cream:hover{background:var(--cream-200)}
+.btn-gold{background:var(--gold-500);color:var(--ink-900);font-weight:600}
+.btn-gold:hover{background:var(--gold-400)}
 .btn-lg{padding:13px 28px;font-size:14px}
 
 /* HERO */
-.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:140px 56px 80px;position:relative;overflow:hidden;background:var(--cream-100)}
-.hero-grain{position:absolute;inset:0;opacity:.025;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:140px 56px 80px;position:relative;overflow:hidden}
 .hero-inner{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1}
-.hero-text{}
-.eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--ink-500);display:inline-flex;align-items:center;gap:8px;margin-bottom:24px}
-.eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-600);animation:pulse 2s ease-in-out infinite}
-.hero h1{font-family:var(--serif);font-size:clamp(48px,5.5vw,76px);font-weight:400;line-height:1.02;letter-spacing:-.025em;margin-bottom:28px;color:var(--ink-900)}
-.hero h1 em{font-style:italic;color:var(--felt-700)}
-.hero h1 .red{color:var(--carmine-600);font-style:italic}
-.hero-sub{font-family:var(--body);font-size:18px;color:var(--ink-500);max-width:480px;line-height:1.65;margin-bottom:36px}
+.eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:8px;margin-bottom:24px}
+.eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-500);animation:pulse 2s ease-in-out infinite}
+.hero h1{font-family:var(--serif);font-size:clamp(48px,5.5vw,76px);font-weight:400;line-height:1.02;letter-spacing:-.025em;margin-bottom:28px;color:var(--cream-50)}
+.hero h1 em{font-style:italic;color:var(--gold-500)}
+.hero h1 .red{color:var(--carmine-500);font-style:italic}
+.hero-sub{font-family:var(--body);font-size:18px;color:rgba(255,255,255,.7);max-width:480px;line-height:1.65;margin-bottom:36px}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
-.hero-note{font-family:var(--mono);font-size:10px;color:var(--ink-300);letter-spacing:.1em;text-transform:uppercase}
-
+.hero-note{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase}
 .hero-card{position:relative;animation:float 6s ease-in-out infinite}
-.range-preview{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:16px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.06);transform:rotate(-2deg);transition:transform .3s}
+.range-preview{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;backdrop-filter:blur(8px);transform:rotate(-2deg);transition:transform .3s}
 .range-preview:hover{transform:rotate(0deg)}
 .range-preview-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
-.range-preview-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-500);text-transform:uppercase}
-.range-preview-stat{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--carmine-600)}
+.range-preview-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:rgba(255,255,255,.5);text-transform:uppercase}
+.range-preview-stat{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--gold-500)}
 .preview-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:1.5px;margin-bottom:14px}
 .pc{aspect-ratio:1;border-radius:2px}
-.pc.R{background:rgba(180,55,40,.6)}
-.pc.M{background:rgba(200,160,80,.5)}
-.pc.F{background:rgba(245,240,230,.7);border:1px solid rgba(0,0,0,.04)}
-.preview-stats{display:flex;gap:14px;font-family:var(--mono);font-size:11px;color:var(--ink-500)}
-.preview-stats span b{color:var(--ink-900);font-weight:500}
-
-.hero-seal{position:absolute;bottom:-20px;left:-20px;width:78px;height:78px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--carmine-500),var(--carmine-700));color:var(--cream-50);display:grid;place-items:center;font-family:var(--serif);font-size:14px;font-style:italic;box-shadow:0 8px 24px rgba(180,60,40,.25);transform:rotate(-12deg);border:2px solid rgba(255,255,255,.2)}
+.pc.R{background:rgba(180,55,40,.7)}
+.pc.M{background:rgba(212,175,55,.4)}
+.pc.F{background:rgba(255,255,255,.04)}
+.preview-stats{display:flex;gap:14px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.55)}
+.preview-stats span b{color:var(--cream-100);font-weight:500}
+.hero-seal{position:absolute;bottom:-20px;left:-20px;width:78px;height:78px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--carmine-500),var(--carmine-700));color:var(--cream-50);display:grid;place-items:center;font-family:var(--serif);font-size:14px;font-style:italic;box-shadow:0 8px 24px rgba(180,60,40,.35);transform:rotate(-12deg);border:2px solid rgba(255,255,255,.2)}
 .hero-seal::before{content:'';position:absolute;inset:6px;border-radius:50%;border:1px dashed rgba(255,255,255,.4)}
 
 /* TRUST BAR */
-.trust{border-top:1px solid var(--cream-300);border-bottom:1px solid var(--cream-300);padding:24px 56px;background:var(--cream-50);overflow:hidden}
+.trust{border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);padding:24px 56px;background:rgba(0,0,0,.15)}
 .trust-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:64px;flex-wrap:wrap}
-.trust-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-300);margin-right:12px}
-.trust-logo{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--ink-300);transition:color .2s}
-.trust-logo:hover{color:var(--ink-700)}
+.trust-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,255,255,.3)}
+.trust-logo{font-family:var(--serif);font-style:italic;font-size:17px;color:rgba(255,255,255,.35);transition:color .2s}
+.trust-logo:hover{color:rgba(255,255,255,.7)}
 
 /* SECTIONS */
 .section{padding:120px 56px;max-width:1200px;margin:0 auto}
 .section-head{margin-bottom:64px}
-.section-badge{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--carmine-600);margin-bottom:18px;display:flex;align-items:center;gap:10px}
-.section-badge::before{content:'';width:18px;height:1px;background:var(--carmine-600)}
-.section-title{font-family:var(--serif);font-size:clamp(36px,4.5vw,56px);font-weight:400;letter-spacing:-.02em;line-height:1.05;margin-bottom:18px;color:var(--ink-900)}
-.section-title em{font-style:italic;color:var(--felt-700)}
-.section-title .red{font-style:italic;color:var(--carmine-600)}
-.section-sub{font-size:17px;color:var(--ink-500);max-width:520px;line-height:1.7;font-family:var(--body)}
+.section-badge{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--carmine-500);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.section-badge::before{content:'';width:18px;height:1px;background:var(--carmine-500)}
+.section-title{font-family:var(--serif);font-size:clamp(36px,4.5vw,56px);font-weight:400;letter-spacing:-.02em;line-height:1.05;margin-bottom:18px;color:var(--cream-50)}
+.section-title em{font-style:italic;color:var(--gold-500)}
+.section-title .red{font-style:italic;color:var(--carmine-500)}
+.section-sub{font-size:17px;color:rgba(255,255,255,.65);max-width:520px;line-height:1.7;font-family:var(--body)}
 
 /* SHOWCASE */
 .showcase{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.showcase-text h3{font-family:var(--serif);font-size:32px;font-weight:400;font-style:italic;line-height:1.15;margin-bottom:14px;color:var(--ink-900)}
-.showcase-text p{font-size:15px;color:var(--ink-500);line-height:1.7;margin-bottom:14px}
-.showcase-num{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--carmine-600);margin-bottom:12px;display:inline-flex;align-items:center;gap:8px}
-.showcase-num span{font-family:var(--serif);font-style:italic;color:var(--ink-900);font-size:14px;letter-spacing:0}
+.showcase-text h3{font-family:var(--serif);font-size:32px;font-weight:400;font-style:italic;line-height:1.15;margin-bottom:14px;color:var(--cream-50)}
+.showcase-text p{font-size:15px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:14px}
+.showcase-num{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--carmine-500);margin-bottom:12px;display:inline-flex;align-items:center;gap:8px}
+.showcase-num span{font-family:var(--serif);font-style:italic;color:rgba(255,255,255,.6);font-size:14px;letter-spacing:0}
 .showcase-features{margin-top:24px;display:flex;flex-direction:column;gap:8px}
-.sf{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--ink-700);font-family:var(--body)}
-.sf::before{content:'+';color:var(--carmine-600);font-family:var(--mono);font-size:14px;flex-shrink:0;margin-top:1px}
-
-.showcase-visual{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:16px;padding:28px}
+.sf{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,.85);font-family:var(--body)}
+.sf::before{content:'+';color:var(--carmine-500);font-family:var(--mono);font-size:14px;flex-shrink:0;margin-top:1px}
+.showcase-visual{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:28px;backdrop-filter:blur(8px)}
 .full-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;max-width:480px;margin:14px auto}
-.fc{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;color:var(--ink-700);font-weight:500}
-.fc.R{background:rgba(180,55,40,.65);color:white}
-.fc.C{background:rgba(200,160,80,.55);color:var(--ink-900)}
-.fc.M{background:linear-gradient(135deg,rgba(180,55,40,.65) 50%,rgba(200,160,80,.55) 50%);color:white}
-.fc.F{background:rgba(245,240,230,.7);color:var(--ink-300)}
+.fc{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.7);font-weight:500}
+.fc.R{background:rgba(180,55,40,.7);color:white}
+.fc.C{background:rgba(212,175,55,.4);color:var(--cream-50)}
+.fc.M{background:linear-gradient(135deg,rgba(180,55,40,.7) 50%,rgba(212,175,55,.4) 50%);color:white}
+.fc.F{background:rgba(255,255,255,.04);color:rgba(255,255,255,.3)}
 .legend-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
-.legend-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-500);text-transform:uppercase}
+.legend-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:rgba(255,255,255,.5);text-transform:uppercase}
 .legend-items{display:flex;gap:14px;flex-wrap:wrap}
-.li{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--ink-500)}
+.li{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.55)}
 .li-dot{width:9px;height:9px;border-radius:2px}
-.range-stats{display:flex;justify-content:space-around;padding-top:14px;border-top:1px solid var(--cream-200);margin-top:14px}
+.range-stats{display:flex;justify-content:space-around;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);margin-top:14px}
 .rs{text-align:center}
-.rs-v{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--ink-900)}
-.rs-l{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-top:2px}
+.rs-v{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--gold-500)}
+.rs-l{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.5);margin-top:2px}
 
-/* FELT (DARK) BY THE NUMBERS */
-.felt-section{background:var(--felt-900);background-image:radial-gradient(ellipse at 30% 50%,var(--felt-700) 0%,var(--felt-900) 70%);padding:120px 56px;color:var(--cream-50);position:relative;overflow:hidden}
-.felt-section::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='rgba(255,255,255,0.025)'/%3E%3C/svg%3E");background-size:40px 40px;pointer-events:none}
-.felt-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1}
-.felt-section .section-badge{color:var(--gold-500)}
-.felt-section .section-badge::before{background:var(--gold-500)}
-.felt-section .section-title{color:var(--cream-50)}
-.felt-section .section-title em{color:var(--gold-500)}
-.felt-section .section-sub{color:rgba(255,255,255,.7)}
-.numbers-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
-.num{}
+/* BY THE NUMBERS */
+.numbers-section{padding:80px 56px;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
+.numbers-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
 .num-v{font-family:var(--serif);font-size:48px;font-style:italic;color:var(--cream-50);line-height:1;margin-bottom:6px;letter-spacing:-.02em}
 .num-l{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.5)}
 
 /* PRICING */
-.pricing{padding:120px 56px;max-width:1100px;margin:0 auto;text-align:center}
-.pricing-header{text-align:center;margin-bottom:64px}
-.pricing-header .section-title{margin-left:auto;margin-right:auto}
-.pricing-header .section-sub{margin-left:auto;margin-right:auto}
-.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:780px;margin:0 auto}
-.plan{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:18px;padding:40px 36px;text-align:left;position:relative;transition:transform .25s}
+.pricing{padding:120px 56px;max-width:1200px;margin:0 auto;text-align:center}
+.pricing-header{margin-bottom:64px}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1080px;margin:0 auto}
+.plan{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:36px 28px;text-align:left;position:relative;transition:transform .25s;backdrop-filter:blur(8px)}
 .plan:hover{transform:translateY(-2px)}
-.plan.featured{background:var(--felt-800);background-image:radial-gradient(ellipse at center,var(--felt-700) 0%,var(--felt-900) 100%);border-color:var(--felt-700);color:var(--cream-50)}
-.plan-tag{display:inline-block;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.16em;background:var(--gold-500);color:var(--ink-900);padding:4px 10px;border-radius:4px;margin-bottom:18px;font-weight:500}
-.plan-name{font-family:var(--serif);font-size:24px;font-style:italic;letter-spacing:-.02em;margin-bottom:6px}
-.plan-desc{font-family:var(--body);font-size:13px;color:var(--ink-500);margin-bottom:28px;line-height:1.5}
-.plan.featured .plan-desc{color:rgba(255,255,255,.6)}
-.plan-price{font-family:var(--serif);font-size:64px;font-style:italic;letter-spacing:-.03em;line-height:1;margin:8px 0 6px}
-.plan-price sub{font-size:15px;font-style:normal;font-family:var(--sans);font-weight:400;color:var(--ink-500);vertical-align:super;font-variant-numeric:initial;letter-spacing:0}
-.plan.featured .plan-price sub{color:rgba(255,255,255,.6)}
-.plan-period{font-family:var(--mono);font-size:11px;color:var(--ink-500);letter-spacing:.06em;margin-bottom:28px}
-.plan.featured .plan-period{color:rgba(255,255,255,.5)}
-.plan-btn{display:block;width:100%;padding:13px;border-radius:999px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;text-align:center;text-decoration:none;margin-bottom:28px}
-.plan-btn.free-btn{background:var(--cream-200);color:var(--ink-900);border:1px solid var(--cream-300)}
-.plan-btn.free-btn:hover{background:var(--cream-300)}
-.plan-btn.pro-btn{background:var(--cream-50);color:var(--ink-900)}
+.plan.featured{border-color:var(--gold-500);box-shadow:0 0 0 1px var(--gold-500),0 24px 60px -12px rgba(212,175,55,.25)}
+.plan-tag{display:inline-block;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.16em;background:var(--gold-500);color:var(--ink-900);padding:4px 10px;border-radius:4px;margin-bottom:18px;font-weight:500;position:absolute;top:-11px;left:50%;transform:translateX(-50%)}
+.plan-name{font-family:var(--serif);font-size:24px;font-style:italic;letter-spacing:-.02em;margin-bottom:6px;color:var(--cream-50)}
+.plan-desc{font-family:var(--body);font-size:13px;color:rgba(255,255,255,.55);margin-bottom:24px;line-height:1.5;min-height:38px}
+.plan-price{font-family:var(--serif);font-size:56px;font-style:italic;letter-spacing:-.03em;line-height:1;margin:8px 0 4px;color:var(--cream-50)}
+.plan-price sub{font-size:14px;font-style:normal;font-family:var(--sans);font-weight:400;color:rgba(255,255,255,.5);vertical-align:super;font-variant-numeric:initial;letter-spacing:0}
+.plan-period{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.06em;margin-bottom:24px;text-transform:uppercase}
+.plan-btn{display:block;width:100%;padding:13px;border-radius:999px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;text-align:center;text-decoration:none;margin-bottom:24px}
+.plan-btn.free-btn{background:rgba(255,255,255,.08);color:var(--cream-50);border:1px solid rgba(255,255,255,.12)}
+.plan-btn.free-btn:hover{background:rgba(255,255,255,.12)}
+.plan-btn.hobby-btn{background:var(--cream-50);color:var(--ink-900)}
+.plan-btn.hobby-btn:hover{background:var(--gold-400)}
+.plan-btn.pro-btn{background:var(--gold-500);color:var(--ink-900);font-weight:600}
 .plan-btn.pro-btn:hover{background:var(--gold-400)}
-.plan-features{display:flex;flex-direction:column;gap:11px;padding-top:24px;border-top:1px solid var(--cream-300)}
-.plan.featured .plan-features{border-top-color:rgba(255,255,255,.1)}
-.pf{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-700);font-family:var(--body)}
-.plan.featured .pf{color:rgba(255,255,255,.85)}
-.pf::before{content:'+';color:var(--carmine-600);font-family:var(--mono);font-size:13px;flex-shrink:0;font-weight:500}
-.plan.featured .pf::before{color:var(--gold-500)}
+.plan-features{display:flex;flex-direction:column;gap:10px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)}
+.pf{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:rgba(255,255,255,.85);font-family:var(--body)}
+.pf::before{content:'+';color:var(--gold-500);font-family:var(--mono);font-size:13px;flex-shrink:0;font-weight:500}
+.pf.dim{color:rgba(255,255,255,.35)}
+.pf.dim::before{color:rgba(255,255,255,.25)}
 
 /* TESTIMONIAL */
 .testi-section{padding:80px 56px;max-width:780px;margin:0 auto;text-align:center}
-.testi-quote{font-family:var(--serif);font-size:clamp(24px,3vw,34px);font-style:italic;line-height:1.35;color:var(--ink-900);margin-bottom:30px;letter-spacing:-.01em}
-.testi-quote .red{color:var(--carmine-600)}
+.testi-quote{font-family:var(--serif);font-size:clamp(24px,3vw,34px);font-style:italic;line-height:1.35;color:var(--cream-50);margin-bottom:30px;letter-spacing:-.01em}
+.testi-quote .red{color:var(--carmine-500)}
 .testi-author{display:inline-flex;align-items:center;gap:12px}
-.testi-avatar{width:38px;height:38px;border-radius:50%;background:var(--cream-200);border:1px solid var(--cream-300);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;font-style:italic;color:var(--ink-700)}
+.testi-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;font-style:italic;color:var(--cream-50)}
 .testi-meta{text-align:left}
-.testi-name{font-family:var(--serif);font-size:14px;font-style:italic;color:var(--ink-900)}
-.testi-role{font-family:var(--mono);font-size:10px;color:var(--ink-500);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.testi-name{font-family:var(--serif);font-size:14px;font-style:italic;color:var(--cream-50)}
+.testi-role{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
 
 /* FAQ */
 .faq-section{padding:120px 56px;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 2fr;gap:80px}
 .faq-list{display:flex;flex-direction:column}
-.faq-item{border-bottom:1px solid var(--cream-300);padding:22px 0}
-.faq-item:first-child{border-top:1px solid var(--cream-300)}
-.faq-q{font-family:var(--serif);font-size:18px;font-style:italic;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--ink-900);user-select:none}
-.faq-icon{font-size:20px;color:var(--ink-300);transition:transform .25s;line-height:1;font-family:var(--mono);font-weight:300}
-.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--carmine-600)}
-.faq-a{font-family:var(--body);font-size:14px;color:var(--ink-500);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .25s}
+.faq-item{border-bottom:1px solid rgba(255,255,255,.08);padding:22px 0}
+.faq-item:first-child{border-top:1px solid rgba(255,255,255,.08)}
+.faq-q{font-family:var(--serif);font-size:18px;font-style:italic;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--cream-50);user-select:none}
+.faq-icon{font-size:20px;color:rgba(255,255,255,.4);transition:transform .25s;line-height:1;font-family:var(--mono);font-weight:300}
+.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--gold-500)}
+.faq-a{font-family:var(--body);font-size:14px;color:rgba(255,255,255,.65);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .25s}
 .faq-item.open .faq-a{max-height:240px;padding-top:14px}
 
 /* CTA */
-.cta-section{background:var(--felt-900);background-image:radial-gradient(ellipse at center bottom,var(--felt-700) 0%,var(--felt-900) 70%);padding:140px 56px;text-align:center;position:relative;overflow:hidden}
-.cta-section::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='rgba(255,255,255,0.03)'/%3E%3C/svg%3E");background-size:40px 40px}
-.cta-inner{position:relative;z-index:1;max-width:680px;margin:0 auto}
+.cta-section{margin:80px 56px;max-width:1100px;border:1px solid var(--gold-500);border-radius:18px;padding:80px 40px;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,rgba(212,175,55,.05) 0%,transparent 70%)}
 .cta-eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold-500);margin-bottom:24px;display:inline-flex;align-items:center;gap:8px}
 .cta-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--carmine-500)}
-.cta-section h2{font-family:var(--serif);font-size:clamp(40px,5vw,68px);font-weight:400;letter-spacing:-.02em;color:var(--cream-50);margin-bottom:20px;line-height:1.05}
+.cta-section h2{font-family:var(--serif);font-size:clamp(36px,4.5vw,56px);font-weight:400;letter-spacing:-.02em;color:var(--cream-50);margin-bottom:18px;line-height:1.05}
 .cta-section h2 em{font-style:italic;color:var(--gold-500)}
-.cta-section p{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:36px;font-family:var(--body);line-height:1.65}
+.cta-section p{font-size:15px;color:rgba(255,255,255,.65);margin-bottom:32px;font-family:var(--body);line-height:1.65;max-width:480px;margin-left:auto;margin-right:auto}
 .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cta-seal{position:absolute;bottom:24px;left:24px;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--carmine-500),var(--carmine-700));color:var(--cream-50);display:grid;place-items:center;font-family:var(--serif);font-size:11px;font-style:italic;border:2px dashed rgba(255,255,255,.3);transform:rotate(-8deg)}
+.cta-coin{position:absolute;top:24px;right:24px;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--gold-400),var(--gold-500));border:1px solid rgba(212,175,55,.5)}
 
 /* FOOTER */
-footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:48px 56px 28px}
-.footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:32px;border-bottom:1px solid var(--cream-200)}
-.footer-brand{font-family:var(--serif);font-size:21px;font-style:italic;color:var(--ink-900);margin-bottom:8px;display:inline-flex;align-items:baseline}
-.footer-brand .acc{color:var(--carmine-600)}
-.footer-brand .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-600);margin-left:5px;align-self:center}
-.footer-tag{font-family:var(--body);font-size:13px;color:var(--ink-500);max-width:280px;line-height:1.6}
-.footer-col h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-500);margin-bottom:14px;font-weight:500}
-.footer-col a{display:block;font-family:var(--body);font-size:13px;color:var(--ink-700);text-decoration:none;margin-bottom:8px;transition:color .15s}
-.footer-col a:hover{color:var(--carmine-600)}
+footer{padding:48px 56px 28px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2)}
+.footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.06)}
+.footer-brand{font-family:var(--serif);font-size:21px;font-style:italic;color:var(--cream-50);margin-bottom:8px;display:inline-flex;align-items:baseline}
+.footer-brand .acc{color:var(--gold-500)}
+.footer-brand .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine-500);margin-left:5px;align-self:center}
+.footer-tag{font-family:var(--body);font-size:13px;color:rgba(255,255,255,.55);max-width:280px;line-height:1.6}
+.footer-col h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,255,255,.5);margin-bottom:14px;font-weight:500}
+.footer-col a{display:block;font-family:var(--body);font-size:13px;color:rgba(255,255,255,.75);text-decoration:none;margin-bottom:8px;transition:color .15s}
+.footer-col a:hover{color:var(--gold-500)}
 .footer-bottom{max-width:1200px;margin:24px auto 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.footer-copy{font-family:var(--mono);font-size:10px;color:var(--ink-300);letter-spacing:.06em;text-transform:uppercase}
+.footer-copy{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.06em;text-transform:uppercase}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(20,18,14,.55);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:20px}
+.modal-overlay{position:fixed;inset:0;background:rgba(10,8,5,.7);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:20px}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--cream-50);border:1px solid var(--cream-300);border-radius:20px;padding:44px;width:100%;max-width:420px;position:relative;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.22,1,.36,1);box-shadow:0 32px 80px rgba(0,0,0,.18)}
+.modal{background:var(--cream-50);color:var(--ink-900);border:1px solid var(--cream-300);border-radius:20px;padding:44px;width:100%;max-width:420px;position:relative;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.22,1,.36,1);box-shadow:0 32px 80px rgba(0,0,0,.3)}
 .modal-overlay.open .modal{transform:translateY(0) scale(1)}
-.modal-close{position:absolute;top:20px;right:24px;background:none;border:none;font-size:22px;color:var(--ink-300);cursor:pointer;line-height:1;transition:color .15s;font-family:var(--mono);font-weight:300}
+.modal-close{position:absolute;top:20px;right:24px;background:none;border:none;font-size:22px;color:var(--ink-300);cursor:pointer;line-height:1;font-family:var(--mono);font-weight:300}
 .modal-close:hover{color:var(--ink-900)}
 .modal-logo{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--ink-900);margin-bottom:8px;display:inline-flex;align-items:baseline}
 .modal-logo .acc{color:var(--carmine-600)}
@@ -234,7 +235,7 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
 .modal-title{font-family:var(--serif);font-size:30px;font-style:italic;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink-900)}
 .modal-sub{font-family:var(--body);font-size:14px;color:var(--ink-500);margin-bottom:28px;line-height:1.5}
 .modal-tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--cream-200);border-radius:10px;padding:4px}
-.modal-tab{flex:1;padding:9px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;color:var(--ink-500);background:transparent;text-align:center}
+.modal-tab{flex:1;padding:9px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;color:var(--ink-500);background:transparent}
 .modal-tab.active{background:var(--cream-50);color:var(--ink-900);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .modal-field{margin-bottom:14px}
 .modal-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-500);margin-bottom:7px;display:block}
@@ -247,25 +248,22 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
 .modal-btn.loading .spinner{display:inline-block}
 .modal-note{font-family:var(--body);font-size:12px;color:var(--ink-500);text-align:center;margin-top:16px;line-height:1.5}
 .modal-note a{color:var(--felt-600);text-decoration:none;cursor:pointer}
-.modal-note a:hover{text-decoration:underline}
 .modal-error{background:rgba(180,60,40,.06);border:1px solid rgba(180,60,40,.2);border-radius:8px;padding:11px 14px;font-family:var(--mono);font-size:11px;color:var(--carmine-600);margin-bottom:14px;display:none;line-height:1.5}
 .modal-error.show{display:block}
 .modal-success{background:rgba(40,140,80,.06);border:1px solid rgba(40,140,80,.2);border-radius:8px;padding:11px 14px;font-family:var(--mono);font-size:11px;color:var(--felt-600);margin-bottom:14px;display:none;line-height:1.5}
 .modal-success.show{display:block}
 
-/* RESPONSIVE */
 @media (max-width:900px){
   nav{padding:0 24px}.nav-links{display:none}
   .hero{padding:120px 24px 60px}.hero-inner{grid-template-columns:1fr;gap:48px}
   .hero-card{max-width:380px;margin:0 auto}
   .section{padding:80px 24px}
   .showcase{grid-template-columns:1fr;gap:40px}
-  .felt-section{padding:80px 24px}.felt-inner{grid-template-columns:1fr;gap:48px}
   .numbers-grid{grid-template-columns:1fr 1fr;gap:24px}
   .pricing{padding:80px 24px}.pricing-grid{grid-template-columns:1fr}
   .faq-section{grid-template-columns:1fr;gap:40px;padding:80px 24px}
-  .cta-section{padding:80px 24px}
   .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .cta-section{margin:60px 24px;padding:60px 24px}
 }
 </style>
 </head>
@@ -274,37 +272,38 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
 <nav>
   <a href="/" class="nav-logo">Edge<span class="acc">Leak</span><span class="dot"></span></a>
   <div class="nav-links">
-    <a href="#ranges">Ranges</a>
-    <a href="#how">How it works</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#faq">FAQ</a>
+    <a href="#ranges" data-i18n="nav.ranges">Ranges</a>
+    <a href="#pricing" data-i18n="nav.pricing">Tarifs</a>
+    <a href="#faq" data-i18n="nav.faq">FAQ</a>
   </div>
   <div class="nav-actions">
-    <button class="btn btn-ghost" onclick="openModal('login')">Sign in</button>
-    <button class="btn btn-primary" onclick="openModal('signup')">Start free →</button>
+    <div class="lang-toggle">
+      <button data-lang="fr" class="active">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <button class="btn btn-ghost" onclick="openModal('login')" data-i18n="nav.signin">Se connecter</button>
+    <button class="btn btn-primary" onclick="openModal('signup')" data-i18n="nav.startFree">Démarrer gratuitement →</button>
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
-  <div class="hero-grain"></div>
   <div class="hero-inner">
     <div class="hero-text">
-      <div class="eyebrow anim-fadeup"><span class="dot"></span>GTO Ranges · Built for serious players</div>
-      <h1 class="anim-fadeup d1">A library<br>of <em>solutions</em>,<br>instantly <span class="red">browsable.</span></h1>
-      <p class="hero-sub anim-fadeup d2">Pre-solved ranges for every position, every stack depth, every common spot — searchable, filterable, color-coded by frequency. Stop wondering. Start knowing.</p>
+      <div class="eyebrow anim-fadeup"><span class="dot"></span><span data-i18n="hero.eyebrow">Ranges GTO · Construit pour les joueurs sérieux</span></div>
+      <h1 class="anim-fadeup d1"><span data-i18n="hero.h1.a">Une bibliothèque</span><br><span data-i18n="hero.h1.b">de </span><em data-i18n="hero.h1.solutions">solutions</em><span data-i18n="hero.h1.c">,</span><br><span data-i18n="hero.h1.d">instantanément </span><span class="red" data-i18n="hero.h1.browsable">consultable.</span></h1>
+      <p class="hero-sub anim-fadeup d2" data-i18n="hero.sub">Ranges pré-résolues pour chaque position, chaque profondeur de tapis, chaque spot courant — recherchables, filtrables, color-codées par fréquence. Arrête de deviner. Commence à savoir.</p>
       <div class="hero-actions anim-fadeup d3">
-        <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Start free →</button>
-        <a href="#ranges" class="btn btn-ghost btn-lg">See it in action</a>
+        <button class="btn btn-gold btn-lg" onclick="openModal('signup')" data-i18n="hero.cta1">Démarrer gratuitement →</button>
+        <a href="#ranges" class="btn btn-ghost btn-lg" data-i18n="hero.cta2">Voir en action</a>
       </div>
-      <p class="hero-note anim-fadeup d4">No credit card · Cancel anytime · Built in Paris</p>
+      <p class="hero-note anim-fadeup d4" data-i18n="hero.note">Sans carte bancaire · Annule à tout moment · Made in Paris</p>
     </div>
     <div class="hero-card anim-fadein d2">
       <div class="range-preview">
         <div class="range-preview-head">
           <div>
             <div class="range-preview-title">BTN OPEN · 100BB</div>
-            <div style="font-family:var(--mono);font-size:9px;color:var(--ink-300);margin-top:2px;letter-spacing:.1em">MTT · 9-MAX</div>
+            <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;letter-spacing:.1em">MTT · 9-MAX</div>
           </div>
           <div class="range-preview-stat">48.2%</div>
         </div>
@@ -320,10 +319,9 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
   </div>
 </section>
 
-<!-- TRUST BAR -->
 <div class="trust">
   <div class="trust-inner">
-    <span class="trust-label">Built for players on</span>
+    <span class="trust-label">For players on</span>
     <span class="trust-logo">GGPoker</span>
     <span class="trust-logo">PokerStars</span>
     <span class="trust-logo">WPT Global</span>
@@ -332,32 +330,31 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
   </div>
 </div>
 
-<!-- RANGES SHOWCASE -->
 <section class="section" id="ranges">
   <div class="section-head">
-    <div class="section-badge anim-fadeup">01 — The library</div>
-    <h2 class="section-title anim-fadeup d1">Every spot,<br><em>solved & visualised.</em></h2>
-    <p class="section-sub anim-fadeup d2">Open the matrix for any position, any stack depth, any common situation. Color-coded by GTO frequency. No more guessing what to do at the table — or in your study session.</p>
+    <div class="section-badge anim-fadeup" data-i18n="section.library.badge">01 — La bibliothèque</div>
+    <h2 class="section-title anim-fadeup d1"><span data-i18n="section.library.titleA">Chaque spot,</span><br><em data-i18n="section.library.titleB">résolu & visualisé.</em></h2>
+    <p class="section-sub anim-fadeup d2" data-i18n="section.library.sub">Ouvre la matrice pour n'importe quelle position, profondeur, situation. Color-codée par fréquence GTO. Plus de doutes à la table — ni en study.</p>
   </div>
   <div class="showcase">
     <div class="showcase-text">
       <div class="showcase-num">02 <span>· One range</span></div>
       <h3>Read at a glance.<br>Understood in seconds.</h3>
-      <p>Each cell is a hand. Color tells you the GTO action — raise, call, mixed, or fold. Hover for the exact frequency. Real solver outputs, packaged for human eyes.</p>
+      <p>Each cell is a hand. Color tells you the GTO action — raise, call, mixed, or fold. Real solver outputs, packaged for human eyes.</p>
       <div class="showcase-features">
         <div class="sf">All 169 starting hands, color-coded</div>
-        <div class="sf">Frequency tooltips on hover</div>
         <div class="sf">VPIP / PFR / 3-Bet stats per range</div>
-        <div class="sf">Export as PNG for your notes</div>
+        <div class="sf">Custom range builder + saves</div>
+        <div class="sf">PNG export (Hobbyist+)</div>
       </div>
     </div>
     <div class="showcase-visual">
       <div class="legend-row">
         <div class="legend-title">CO Open · 100BB · MTT</div>
         <div class="legend-items">
-          <div class="li"><div class="li-dot" style="background:rgba(180,55,40,.65)"></div>Raise</div>
-          <div class="li"><div class="li-dot" style="background:rgba(200,160,80,.55)"></div>Call</div>
-          <div class="li"><div class="li-dot" style="background:linear-gradient(135deg,rgba(180,55,40,.65) 50%,rgba(200,160,80,.55) 50%)"></div>Mixed</div>
+          <div class="li"><div class="li-dot" style="background:rgba(180,55,40,.7)"></div>Raise</div>
+          <div class="li"><div class="li-dot" style="background:rgba(212,175,55,.4)"></div>Call</div>
+          <div class="li"><div class="li-dot" style="background:linear-gradient(135deg,rgba(180,55,40,.7) 50%,rgba(212,175,55,.4) 50%)"></div>Mixed</div>
         </div>
       </div>
       <div class="full-grid" id="showcase-grid"></div>
@@ -370,64 +367,71 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
   </div>
 </section>
 
-<!-- BY THE NUMBERS (FELT) -->
-<div class="felt-section">
-  <div class="felt-inner">
-    <div>
-      <div class="section-badge">By the numbers</div>
-      <h2 class="section-title">The work<br>shows up<br>in the <em>graph.</em></h2>
-      <p class="section-sub">Players who study fifty hands a week with EdgeLeak gain an average of 3.4 bb/100 over their next 10,000 hands. That's not variance. That's discipline, compounded.</p>
-    </div>
-    <div class="numbers-grid">
-      <div class="num"><div class="num-v">9,400+</div><div class="num-l">GTO ranges live</div></div>
-      <div class="num"><div class="num-v">8</div><div class="num-l">Positions covered</div></div>
-      <div class="num"><div class="num-v">4</div><div class="num-l">Stack depths</div></div>
-      <div class="num"><div class="num-v">+3.4</div><div class="num-l">Avg bb/100 gain</div></div>
-    </div>
+<div class="numbers-section">
+  <div class="numbers-grid">
+    <div><div class="num-v">8</div><div class="num-l">Positions</div></div>
+    <div><div class="num-v">3</div><div class="num-l">Stack depths</div></div>
+    <div><div class="num-v">46+</div><div class="num-l">GTO ranges live</div></div>
+    <div><div class="num-v">+3.4</div><div class="num-l">Avg bb/100 gain</div></div>
   </div>
 </div>
 
-<!-- PRICING -->
 <section class="pricing" id="pricing">
   <div class="pricing-header">
-    <div class="section-badge" style="justify-content:center">Pricing · 2026</div>
-    <h2 class="section-title">One subscription.<br><em class="red">No upsells.</em></h2>
-    <p class="section-sub" style="margin-top:18px">Pay for the ranges, not the chrome. Cancel any month — take your saved ranges with you.</p>
+    <div class="section-badge" style="justify-content:center" data-i18n="pricing.badge">Tarifs · 2026</div>
+    <h2 class="section-title"><span data-i18n="pricing.titleA">Trois plans.</span><br><em class="red" data-i18n="pricing.titleB">Aucun upsell.</em></h2>
+    <p class="section-sub" style="margin:18px auto 0" data-i18n="pricing.sub">Paie pour les ranges, pas pour le superflu. Annule n'importe quand — garde tes ranges sauvegardées.</p>
   </div>
   <div class="pricing-grid">
     <div class="plan anim-fadeup">
-      <div class="plan-name">Apprentice</div>
-      <div class="plan-desc">For your first study sessions.</div>
-      <div class="plan-price">Free</div>
-      <div class="plan-period">Forever</div>
-      <a class="plan-btn free-btn" onclick="openModal('signup')">Start free →</a>
+      <div class="plan-name" data-i18n="pricing.free.name">Apprentice</div>
+      <div class="plan-desc" data-i18n="pricing.free.desc">Pour tes premières sessions d'étude.</div>
+      <div class="plan-price" data-i18n="pricing.free.price">Gratuit</div>
+      <div class="plan-period" data-i18n="pricing.free.period">Pour toujours</div>
+      <a class="plan-btn free-btn" onclick="openModal('signup')" data-i18n="pricing.free.cta">Démarrer gratuitement →</a>
       <div class="plan-features">
-        <div class="pf">3 positions preview (BTN, CO, BB)</div>
-        <div class="pf">100bb stack depth only</div>
-        <div class="pf">Custom range builder (3 saves)</div>
-        <div class="pf">Community support</div>
+        <div class="pf">3 positions (BTN, CO, BB)</div>
+        <div class="pf">100bb stack depth</div>
+        <div class="pf">3 ranges sauvegardées</div>
+        <div class="pf dim">Pas d'export PNG</div>
+        <div class="pf dim">Pas de 20bb / vs 3-bet</div>
+      </div>
+    </div>
+    <div class="plan anim-fadeup d1">
+      <div class="plan-tag" data-i18n="pricing.hobbyist.tag">Populaire</div>
+      <div class="plan-name" data-i18n="pricing.hobbyist.name">Hobbyist</div>
+      <div class="plan-desc" data-i18n="pricing.hobbyist.desc">Pour le joueur sérieux qui monte en stakes.</div>
+      <div class="plan-price" data-i18n="pricing.hobbyist.price">3,99€</div>
+      <div class="plan-period" data-i18n="pricing.hobbyist.period">par mois · annule à tout moment</div>
+      <a class="plan-btn hobby-btn" onclick="goToCheckout('hobbyist')" data-i18n="pricing.hobbyist.cta">Choisir Hobbyist →</a>
+      <div class="plan-features">
+        <div class="pf">Toutes les 8 positions</div>
+        <div class="pf">100bb + 40bb stack depths</div>
+        <div class="pf">RFI, vs Open, vs 3-Bet</div>
+        <div class="pf">25 ranges sauvegardées</div>
+        <div class="pf">Export PNG</div>
+        <div class="pf dim">Pas de 20bb push/fold</div>
       </div>
     </div>
     <div class="plan featured anim-fadeup d2">
-      <div class="plan-tag">Most chosen</div>
-      <div class="plan-name">Regular</div>
-      <div class="plan-desc">For the disciplined grinder.</div>
-      <div class="plan-price">9,99€<sub>/month</sub></div>
-      <div class="plan-period">Billed monthly · cancel anytime</div>
-      <a class="plan-btn pro-btn" onclick="goToCheckout()">Start Regular →</a>
+      <div class="plan-tag" data-i18n="pricing.regular.tag">Plus populaire</div>
+      <div class="plan-name" data-i18n="pricing.regular.name">Regular</div>
+      <div class="plan-desc" data-i18n="pricing.regular.desc">Le grinder discipliné qui ne loupe rien.</div>
+      <div class="plan-price" data-i18n="pricing.regular.price">9,99€</div>
+      <div class="plan-period" data-i18n="pricing.regular.period">par mois · annule à tout moment</div>
+      <a class="plan-btn pro-btn" onclick="goToCheckout('regular')" data-i18n="pricing.regular.cta">Choisir Regular →</a>
       <div class="plan-features">
-        <div class="pf">All 8 positions × 4 stack depths</div>
-        <div class="pf">RFI, vs RFI, vs 3-Bet — all spots</div>
-        <div class="pf">Unlimited custom ranges</div>
-        <div class="pf">Quiz training mode</div>
-        <div class="pf">PNG export for notes</div>
-        <div class="pf">Email support · 24h</div>
+        <div class="pf">Tout Hobbyist +</div>
+        <div class="pf">20bb push/fold (MTT short)</div>
+        <div class="pf">Toutes situations vs 3-bet</div>
+        <div class="pf">Sauvegardes illimitées</div>
+        <div class="pf">Mode quiz (à venir)</div>
+        <div class="pf">Support prioritaire</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- TESTIMONIAL -->
 <section class="testi-section">
   <p class="testi-quote">"I used to flip through screenshots of solver outputs. EdgeLeak made the practice feel — I don't know — <span class="red">respectable.</span>"</p>
   <div class="testi-author">
@@ -439,50 +443,47 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
   </div>
 </section>
 
-<!-- FAQ -->
 <section class="faq-section" id="faq">
   <div>
     <div class="section-badge">FAQ</div>
-    <h2 class="section-title">Questions,<br><em>answered.</em></h2>
+    <h2 class="section-title"><span data-i18n="faq.title">Questions, </span><em data-i18n="faq.title2">réponses.</em></h2>
   </div>
   <div class="faq-list">
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is EdgeLeak allowed by major poker sites?<span class="faq-icon">+</span></div>
-      <div class="faq-a">Yes. EdgeLeak is a study tool — it does not run during play and does not provide real-time assistance. That keeps it compliant with GG, Stars, WPT and others.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">EdgeLeak est-il autorisé sur les sites de poker ?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Oui. EdgeLeak est un outil d'étude — il ne tourne pas pendant le jeu et ne fournit aucune assistance temps réel. Compatible GG, Stars, WPT, Winamax.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How accurate are the ranges?<span class="faq-icon">+</span></div>
-      <div class="faq-a">Ranges are derived from standard solver outputs (PioSolver, GTO Wizard equivalents) for the most studied spots in MTT and cash. They are accurate for spots up to NL500 and high-stakes MTT.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Quelle est la précision des ranges ?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Les ranges proviennent de solvers standards (PioSolver, GTO Wizard équivalents) sur les spots les plus étudiés en MTT et cash. Précis pour spots jusqu'à NL500 et MTT high-stakes.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime?<span class="faq-icon">+</span></div>
-      <div class="faq-a">Yes. One click in your billing portal. Your Pro access continues until the end of the current billing cycle, then drops back to Free. Your saved custom ranges remain accessible.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Différence entre Hobbyist et Regular ?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Hobbyist (3,99€) débloque toutes les positions et 100/40bb — parfait pour MTT classique. Regular (9,99€) ajoute le 20bb push/fold (utile fin de tournoi/SAT/sit'n'go), des saves illimitées, et le mode quiz à venir.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Where does my data live?<span class="faq-icon">+</span></div>
-      <div class="faq-a">Your account and saved ranges are stored on Supabase (EU region). Payments are handled by Stripe. We do not sell your data, ever. You can export and delete it from Settings.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Annulation à tout moment ?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Oui, en un clic dans ton portail de facturation. Ton accès reste actif jusqu'à la fin du cycle, puis revient en Apprentice. Tes ranges sauvegardées restent accessibles.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Do I need to know solver theory to benefit?<span class="faq-icon">+</span></div>
-      <div class="faq-a">No. The legend explains every color, hover gives you exact frequencies, and tooltips break down the strategic intuition for each range. You learn by browsing.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Où sont stockées mes données ?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Sur Supabase (région UE). Paiements via Stripe. On ne vend jamais tes données. Tu peux exporter et supprimer ton compte depuis Settings.</div>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
 <section class="cta-section">
-  <div class="cta-inner">
-    <div class="cta-eyebrow">Begin tonight</div>
-    <h2>Find your leak.<br><em>Build your edge.</em></h2>
-    <p>Start free, no card required. Your next thousand hands deserve a serious second opinion.</p>
-    <div class="cta-actions">
-      <button class="btn btn-cream btn-lg" onclick="openModal('signup')">Start free →</button>
-      <button class="btn btn-felt btn-lg" onclick="goToCheckout()">Go Regular · 9,99€</button>
-    </div>
+  <div class="cta-coin"></div>
+  <div class="cta-eyebrow">Begin tonight</div>
+  <h2>Find your leak.<br><em>Build your edge.</em></h2>
+  <p>Démarre gratuit, sans carte. Tes mille prochaines mains méritent un sérieux deuxième regard.</p>
+  <div class="cta-actions">
+    <button class="btn btn-gold btn-lg" onclick="openModal('signup')">Start free →</button>
+    <button class="btn btn-ghost btn-lg" onclick="goToCheckout('regular')">Go Regular · 9,99€</button>
   </div>
+  <div class="cta-seal">EDGE</div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-grid">
     <div>
@@ -497,23 +498,21 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
     </div>
     <div class="footer-col">
       <h4>Company</h4>
-      <a href="#">About</a>
-      <a href="mailto:hello@edgeleak.app">Contact</a>
+      <a href="mailto:hello@edgeleak.com">Contact</a>
     </div>
     <div class="footer-col">
       <h4>Legal</h4>
-      <a href="#">Terms</a>
-      <a href="#">Privacy</a>
-      <a href="#">Compliance</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/compliance.html">Compliance</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-copy">© 2026 EdgeLeak SAS · Paris</div>
-    <div class="footer-copy">v 4.0</div>
+    <div class="footer-copy">© 2026 EdgeLeak · Paris</div>
+    <div class="footer-copy">v 4.2 · Status · Operational</div>
   </div>
 </footer>
 
-<!-- AUTH MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalBg(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
@@ -522,215 +521,148 @@ footer{background:var(--cream-50);border-top:1px solid var(--cream-300);padding:
   </div>
 </div>
 
-<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/config.js"></script>
 
 <script>
-// ── PREVIEW HERO RANGE (BTN OPEN MTT 100BB) ──
+// Hero preview range (BTN OPEN MTT 100BB simplified)
 const RANKS = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
 const BTN_R = ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s','K4s','K3s','K2s','QJs','QTs','Q9s','Q8s','Q7s','Q6s','Q5s','Q4s','JTs','J9s','J8s','J7s','J6s','T9s','T8s','T7s','T6s','98s','97s','96s','87s','86s','85s','76s','75s','65s','64s','54s','53s','43s','AKo','AQo','AJo','ATo','A9o','A8o','A7o','A6o','A5o','A4o','A3o','A2o','KQo','KJo','KTo','K9o','K8o','K7o','QJo','QTo','Q9o','Q8o','JTo','J9o','J8o','T9o','T8o','98o','87o','76o'];
 const BTN_M = ['K6o','Q7o','J7o','97o','86o','75o','65o'];
-
-(function(){
-  const g = document.getElementById('preview-grid');
-  if (!g) return;
-  for (let i=0; i<13; i++){
-    for (let j=0; j<13; j++){
-      const r1=RANKS[i], r2=RANKS[j];
-      const h = i===j ? r1+r2 : i<j ? r1+r2+'s' : r2+r1+'o';
-      let cl = 'F';
-      if (BTN_R.includes(h)) cl = 'R';
-      else if (BTN_M.includes(h)) cl = 'M';
-      const c = document.createElement('div');
-      c.className = 'pc ' + cl;
-      g.appendChild(c);
-    }
-  }
-})();
-
-// ── SHOWCASE GRID (CO OPEN MTT 100BB) ──
 const CO_R = ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','K8s','K7s','QJs','QTs','Q9s','Q8s','Q7s','JTs','J9s','J8s','J7s','T9s','T8s','T7s','98s','97s','87s','86s','76s','75s','65s','54s','AKo','AQo','AJo','ATo','A9o','A8o','A7o','KQo','KJo','KTo','K9o','QJo','QTo','Q9o','JTo','J9o','T9o'];
-const CO_C = [];
 const CO_M = ['A6o','K8o','Q8o','J8o','98o','87o'];
 
 (function(){
-  const g = document.getElementById('showcase-grid');
-  if (!g) return;
-  for (let i=0; i<13; i++){
-    for (let j=0; j<13; j++){
-      const r1=RANKS[i], r2=RANKS[j];
-      const h = i===j ? r1+r2 : i<j ? r1+r2+'s' : r2+r1+'o';
-      let cl = 'F';
-      if (CO_R.includes(h)) cl = 'R';
-      else if (CO_C.includes(h)) cl = 'C';
-      else if (CO_M.includes(h)) cl = 'M';
-      const c = document.createElement('div');
-      c.className = 'fc ' + cl;
-      c.textContent = h;
-      g.appendChild(c);
-    }
+  const g = document.getElementById('preview-grid');
+  if (g) for (let i=0; i<13; i++) for (let j=0; j<13; j++){
+    const h = i===j?RANKS[i]+RANKS[j]:i<j?RANKS[i]+RANKS[j]+'s':RANKS[j]+RANKS[i]+'o';
+    let cl = 'F';
+    if (BTN_R.includes(h)) cl = 'R'; else if (BTN_M.includes(h)) cl = 'M';
+    g.innerHTML += `<div class="pc ${cl}"></div>`;
+  }
+  const sg = document.getElementById('showcase-grid');
+  if (sg) for (let i=0; i<13; i++) for (let j=0; j<13; j++){
+    const h = i===j?RANKS[i]+RANKS[j]:i<j?RANKS[i]+RANKS[j]+'s':RANKS[j]+RANKS[i]+'o';
+    let cl = 'F';
+    if (CO_R.includes(h)) cl = 'R'; else if (CO_M.includes(h)) cl = 'M';
+    sg.innerHTML += `<div class="fc ${cl}">${h}</div>`;
   }
 })();
 
-// ── FAQ ──
-function toggleFaq(el){
-  el.parentElement.classList.toggle('open');
+// Language toggle
+function applyLang(lang){
+  localStorage.setItem('el_lang', lang);
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    el.textContent = window.t(key, lang);
+  });
+  document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
 }
+document.querySelectorAll('.lang-toggle button').forEach(b => b.onclick = () => applyLang(b.dataset.lang));
+applyLang(localStorage.getItem('el_lang') || 'fr');
 
-// ── AUTH MODAL ──
+function toggleFaq(el){ el.parentElement.classList.toggle('open'); }
+
+// Supabase
 let supa = null;
 function isConfigured(){
-  const url = window.SUPABASE_URL || '';
-  const key = window.SUPABASE_ANON_KEY || '';
+  const url = window.SUPABASE_URL || '', key = window.SUPABASE_ANON_KEY || '';
   if (!url || !key) return false;
   if (url.includes('YOUR_PROJECT') || key.includes('YOUR_ANON')) return false;
   if (!url.startsWith('https://') || !url.includes('.supabase.co')) return false;
-  if (key.length < 40) return false;
-  return true;
+  return key.length >= 40;
 }
 function getSupa(){
   if (supa) return supa;
-  if (!isConfigured()){
-    console.warn('Supabase not configured. Running in DEMO MODE (localStorage only). See SETUP.md to enable real accounts.');
-    return null;
-  }
+  if (!isConfigured()) return null;
   supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
   return supa;
 }
 
 function getSignupHTML(){
-  return `
-    <h2 class="modal-title">Create account</h2>
+  return `<h2 class="modal-title">Create account</h2>
     <p class="modal-sub">Free forever. No credit card required.</p>
-    <div class="modal-tabs">
-      <button class="modal-tab" onclick="switchModal('login')">Sign in</button>
-      <button class="modal-tab active">Sign up</button>
-    </div>
-    <div class="modal-error" id="modal-error"></div>
-    <div class="modal-success" id="modal-success"></div>
+    <div class="modal-tabs"><button class="modal-tab" onclick="switchModal('login')">Sign in</button><button class="modal-tab active">Sign up</button></div>
+    <div class="modal-error" id="modal-error"></div><div class="modal-success" id="modal-success"></div>
+    <p class="modal-note" style="margin-bottom:16px;text-align:left">Pour une expérience guidée en 4 étapes, <a onclick="window.location.href='/onboarding.html'">utilise l'onboarding</a>.</p>
     <div class="modal-field"><label class="modal-label">Display name</label><input class="modal-input" id="auth-name" type="text" placeholder="Léo" autocomplete="name"></div>
     <div class="modal-field"><label class="modal-label">Email</label><input class="modal-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
     <div class="modal-field"><label class="modal-label">Password</label><input class="modal-input" id="auth-pass" type="password" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleSignup()"></div>
-    <button class="modal-btn" id="modal-btn" onclick="handleSignup()"><span>Create free account</span><span class="spinner"></span></button>
-    <p class="modal-note">By signing up you agree to our <a>Terms</a> and <a>Privacy</a>.</p>`;
+    <button class="modal-btn" id="modal-btn" onclick="handleSignup()"><span>Create account →</span><span class="spinner"></span></button>`;
 }
-
 function getLoginHTML(){
-  return `
-    <h2 class="modal-title">Welcome back</h2>
+  return `<h2 class="modal-title">Welcome back</h2>
     <p class="modal-sub">Sign in to your EdgeLeak account.</p>
-    <div class="modal-tabs">
-      <button class="modal-tab active">Sign in</button>
-      <button class="modal-tab" onclick="switchModal('signup')">Sign up</button>
-    </div>
+    <div class="modal-tabs"><button class="modal-tab active">Sign in</button><button class="modal-tab" onclick="switchModal('signup')">Sign up</button></div>
     <div class="modal-error" id="modal-error"></div>
     <div class="modal-field"><label class="modal-label">Email</label><input class="modal-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
     <div class="modal-field"><label class="modal-label">Password</label><input class="modal-input" id="auth-pass" type="password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
-    <button class="modal-btn" id="modal-btn" onclick="handleLogin()"><span>Sign in</span><span class="spinner"></span></button>
-    <p class="modal-note">No account yet? <a onclick="switchModal('signup')">Sign up free →</a></p>`;
+    <button class="modal-btn" id="modal-btn" onclick="handleLogin()"><span>Sign in →</span><span class="spinner"></span></button>
+    <p class="modal-note"><a onclick="forgotPassword()">Mot de passe oublié ?</a></p>`;
 }
-
-function openModal(type){
-  document.getElementById('modal-content').innerHTML = type==='signup' ? getSignupHTML() : getLoginHTML();
-  document.getElementById('modal-overlay').classList.add('open');
-  setTimeout(()=>{const el=document.querySelector('.modal-input');if(el)el.focus();},300);
-}
+function openModal(t){document.getElementById('modal-content').innerHTML=t==='signup'?getSignupHTML():getLoginHTML();document.getElementById('modal-overlay').classList.add('open');setTimeout(()=>document.querySelector('.modal-input')?.focus(),300);}
 function closeModalBg(e){if(e.target===document.getElementById('modal-overlay'))closeModal()}
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open')}
-function switchModal(type){document.getElementById('modal-content').innerHTML=type==='signup'?getSignupHTML():getLoginHTML()}
-function showError(msg){const el=document.getElementById('modal-error');if(el){el.textContent=msg;el.classList.add('show');document.getElementById('modal-success')?.classList.remove('show')}}
-function showSuccess(msg){const el=document.getElementById('modal-success');if(el){el.textContent=msg;el.classList.add('show');document.getElementById('modal-error')?.classList.remove('show')}}
-function setLoading(on){const btn=document.getElementById('modal-btn');if(btn){btn.disabled=on;btn.classList.toggle('loading',on)}}
+function switchModal(t){document.getElementById('modal-content').innerHTML=t==='signup'?getSignupHTML():getLoginHTML()}
+function showError(m){const e=document.getElementById('modal-error');if(e){e.textContent=m;e.classList.add('show');document.getElementById('modal-success')?.classList.remove('show')}}
+function showSuccess(m){const e=document.getElementById('modal-success');if(e){e.textContent=m;e.classList.add('show');document.getElementById('modal-error')?.classList.remove('show')}}
+function setLoading(on){const b=document.getElementById('modal-btn');if(b){b.disabled=on;b.classList.toggle('loading',on)}}
 
 async function handleSignup(){
-  const name = document.getElementById('auth-name')?.value.trim();
-  const email = document.getElementById('auth-email')?.value.trim();
-  const pass = document.getElementById('auth-pass')?.value;
-  if (!name) return showError('Please enter a display name.');
-  if (!email || !email.includes('@')) return showError('Please enter a valid email.');
-  if (!pass || pass.length < 8) return showError('Password must be at least 8 characters.');
-
-  const sb = getSupa();
-  if (!sb){
-    // Fallback: localStorage signup so the site still works in demo mode
-    localStorage.setItem('el_user', JSON.stringify({name, email, plan:'free'}));
-    window.location.href = '/app.html';
-    return;
-  }
-
+  const name=document.getElementById('auth-name')?.value.trim();
+  const email=document.getElementById('auth-email')?.value.trim();
+  const pass=document.getElementById('auth-pass')?.value;
+  if(!name)return showError('Display name required.');
+  if(!email||!email.includes('@'))return showError('Valid email required.');
+  if(!pass||pass.length<8)return showError('Password ≥ 8 chars.');
+  const sb=getSupa();
+  if(!sb){localStorage.setItem('el_user',JSON.stringify({name,email,plan:'free'}));window.location.href='/app.html';return;}
   setLoading(true);
-  const { data, error } = await sb.auth.signUp({
-    email, password: pass,
-    options: { data: { display_name: name } }
-  });
+  const{data,error}=await sb.auth.signUp({email,password:pass,options:{data:{display_name:name}}});
   setLoading(false);
-  if (error) return showError(error.message);
-  if (data.user && !data.session){
-    showSuccess('Check your email to confirm your account, then sign in.');
-    return;
-  }
-  window.location.href = '/app.html';
+  if(error)return showError(error.message);
+  if(data.user&&!data.session){showSuccess('Vérifie ton email pour confirmer ton compte.');return;}
+  window.location.href='/app.html';
 }
-
 async function handleLogin(){
-  const email = document.getElementById('auth-email')?.value.trim();
-  const pass = document.getElementById('auth-pass')?.value;
-  if (!email || !email.includes('@')) return showError('Please enter a valid email.');
-  if (!pass) return showError('Please enter your password.');
-
-  const sb = getSupa();
-  if (!sb){
-    const stored = localStorage.getItem('el_user');
-    if (!stored) return showError('No account found in demo mode.');
-    window.location.href = '/app.html';
-    return;
-  }
-
+  const email=document.getElementById('auth-email')?.value.trim();
+  const pass=document.getElementById('auth-pass')?.value;
+  if(!email||!email.includes('@'))return showError('Valid email required.');
+  if(!pass)return showError('Password required.');
+  const sb=getSupa();
+  if(!sb)return showError('Supabase not configured.');
   setLoading(true);
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  const{error}=await sb.auth.signInWithPassword({email,password:pass});
   setLoading(false);
-  if (error) return showError(error.message);
-  window.location.href = '/app.html';
+  if(error)return showError(error.message);
+  window.location.href='/app.html';
+}
+async function forgotPassword(){
+  const email=document.getElementById('auth-email')?.value.trim();
+  if(!email||!email.includes('@'))return showError('Saisis ton email puis re-clique sur "Mot de passe oublié".');
+  const sb=getSupa();
+  if(!sb)return;
+  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/app.html'});
+  if(error)return showError(error.message);
+  showSuccess('Email envoyé. Vérifie ta boîte (et les spams).');
 }
 
-// ── CHECKOUT ──
-async function goToCheckout(){
-  // If logged in, go through API; otherwise prompt signup first
-  const sb = getSupa();
-  let userId = null, email = null;
-  if (sb){
-    const { data: { session } } = await sb.auth.getSession();
-    if (session){ userId = session.user.id; email = session.user.email; }
-  }
-  if (!userId){
-    openModal('signup');
-    return;
-  }
-  // Direct to Vercel checkout endpoint
-  try {
-    const res = await fetch('/api/checkout', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ userId, email })
-    });
-    const { url, error } = await res.json();
-    if (error) throw new Error(error);
-    window.location.href = url;
-  } catch (e) {
-    // Fallback: hardcoded payment link
-    window.location.href = 'https://buy.stripe.com/00w7sM2IZ6Bld1xewWcMM00';
-  }
+async function goToCheckout(plan){
+  const priceId = plan === 'hobbyist' ? window.STRIPE_PRICE_HOBBYIST : window.STRIPE_PRICE_REGULAR;
+  const sb=getSupa();
+  let userId=null,email=null;
+  if(sb){const{data:{session}}=await sb.auth.getSession();if(session){userId=session.user.id;email=session.user.email;}}
+  if(!userId){openModal('signup');return;}
+  try{
+    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email,priceId,plan})});
+    const{url,error}=await res.json();
+    if(error)throw new Error(error);
+    window.location.href=url;
+  }catch(e){alert('Checkout error: '+e.message);}
 }
 
-document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal() });
-
-// Auto-redirect logged-in users to /app.html (optional, keep landing accessible)
-(async () => {
-  const sb = getSupa();
-  if (!sb) return;
-  const { data: { session } } = await sb.auth.getSession();
-  // Don't auto-redirect; let user choose. They can open the app via "Sign in".
-})();
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 </script>
 </body>
 </html>
