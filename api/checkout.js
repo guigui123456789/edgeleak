@@ -1,7 +1,5 @@
-// EdgeLeak — Stripe Checkout session creator (3 tiers)
-// POST /api/checkout
-// Body: { userId, email, priceId, plan }
-// Returns: { url } — redirect to Stripe Checkout
+// EdgeLeak — Stripe Checkout (3 tiers × monthly/annual + 14-day trial)
+// POST /api/checkout  Body: { userId, email, priceId, plan, billing }
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,16 +8,18 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { userId, email, priceId, plan } = req.body || {};
+  const { userId, email, priceId } = req.body || {};
   if (!userId || !email) return res.status(400).json({ error: 'Missing userId or email' });
 
-  // Whitelist of allowed price IDs (avoid client-side tampering)
+  // Whitelist of allowed price IDs → plan name + billing
   const ALLOWED_PRICES = {
-    'price_1TS99LLqC6EEycUgKIGUwTwL': 'hobbyist', // €3.99/mo
-    'price_1TRg2nLqC6EEycUgd0TXBiua': 'regular',  // €9.99/mo
+    'price_1TS99LLqC6EEycUgKIGUwTwL': { plan: 'hobbyist', billing: 'monthly' },
+    'price_1TRg2nLqC6EEycUgd0TXBiua': { plan: 'regular',  billing: 'monthly' },
+    'price_1TTOHULqC6EEycUgvrfcibrH': { plan: 'hobbyist', billing: 'annual' },
+    'price_1TTOHXLqC6EEycUgMeZAQjX3': { plan: 'regular',  billing: 'annual' },
   };
+  const meta = ALLOWED_PRICES[priceId] || ALLOWED_PRICES['price_1TRg2nLqC6EEycUgd0TXBiua'];
   const finalPriceId = ALLOWED_PRICES[priceId] ? priceId : 'price_1TRg2nLqC6EEycUgd0TXBiua';
-  const finalPlan = ALLOWED_PRICES[finalPriceId];
 
   const stripeSecret = process.env.STRIPE_SECRET_KEY;
   const appUrl = process.env.APP_URL || `https://${req.headers.host}`;
@@ -33,13 +33,17 @@ export default async function handler(req, res) {
     params.append('customer_email', email);
     params.append('client_reference_id', userId);
     params.append('metadata[user_id]', userId);
-    params.append('metadata[plan]', finalPlan);
+    params.append('metadata[plan]', meta.plan);
+    params.append('metadata[billing]', meta.billing);
     params.append('subscription_data[metadata][user_id]', userId);
-    params.append('subscription_data[metadata][plan]', finalPlan);
-    params.append('success_url', `${appUrl}/app.html?checkout=success&plan=${finalPlan}`);
+    params.append('subscription_data[metadata][plan]', meta.plan);
+    params.append('subscription_data[metadata][billing]', meta.billing);
+    // 14-day free trial on all paid plans
+    params.append('subscription_data[trial_period_days]', '14');
+    params.append('success_url', `${appUrl}/app.html?checkout=success&plan=${meta.plan}`);
     params.append('cancel_url', `${appUrl}/app.html?checkout=cancelled`);
     params.append('allow_promotion_codes', 'true');
-    params.append('automatic_tax[enabled]', 'true'); // VAT compliance for EU
+    params.append('automatic_tax[enabled]', 'true');
     params.append('billing_address_collection', 'auto');
     params.append('tax_id_collection[enabled]', 'true');
 

@@ -154,6 +154,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;ali
 /* PRICING */
 .pricing{padding:120px 56px;max-width:1200px;margin:0 auto;text-align:center}
 .pricing-header{margin-bottom:64px}
+.billing-toggle{display:inline-flex;background:rgba(255,255,255,.06);border-radius:999px;padding:4px;gap:2px;margin:0 auto 36px;border:1px solid rgba(255,255,255,.08)}
+.billing-toggle button{background:transparent;border:none;color:rgba(255,255,255,.55);padding:9px 20px;border-radius:999px;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:8px}
+.billing-toggle button.active{background:var(--gold-500);color:var(--ink-900);font-weight:600}
+.billing-toggle .save-badge{font-family:var(--mono);font-size:9px;letter-spacing:.08em;background:rgba(180,55,40,.2);color:var(--carmine-500);padding:2px 6px;border-radius:4px;text-transform:uppercase}
+.billing-toggle button.active .save-badge{background:rgba(0,0,0,.15);color:var(--ink-900)}
+.trial-pill{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--gold-500);background:rgba(212,175,55,.1);padding:4px 10px;border-radius:4px;text-transform:uppercase;margin-bottom:14px;border:1px solid rgba(212,175,55,.25)}
 .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1080px;margin:0 auto}
 .plan{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:36px 28px;text-align:left;position:relative;transition:transform .25s;backdrop-filter:blur(8px)}
 .plan:hover{transform:translateY(-2px)}
@@ -380,7 +386,12 @@ footer{padding:48px 56px 28px;border-top:1px solid rgba(255,255,255,.06);backgro
   <div class="pricing-header">
     <div class="section-badge" style="justify-content:center" data-i18n="pricing.badge">Tarifs · 2026</div>
     <h2 class="section-title"><span data-i18n="pricing.titleA">Trois plans.</span><br><em class="red" data-i18n="pricing.titleB">Aucun upsell.</em></h2>
-    <p class="section-sub" style="margin:18px auto 0" data-i18n="pricing.sub">Paie pour les ranges, pas pour le superflu. Annule n'importe quand — garde tes ranges sauvegardées.</p>
+    <p class="section-sub" style="margin:18px auto 24px" data-i18n="pricing.sub">Paie pour les ranges, pas pour le superflu. Annule n'importe quand — garde tes ranges sauvegardées.</p>
+    <div class="trial-pill">✦ 14 jours d'essai gratuit · Pas de carte requise pour démarrer</div>
+  </div>
+  <div class="billing-toggle" id="billing-toggle">
+    <button class="active" data-billing="monthly">Mensuel</button>
+    <button data-billing="annual">Annuel <span class="save-badge">-20%</span></button>
   </div>
   <div class="pricing-grid">
     <div class="plan anim-fadeup">
@@ -401,9 +412,9 @@ footer{padding:48px 56px 28px;border-top:1px solid rgba(255,255,255,.06);backgro
       <div class="plan-tag" data-i18n="pricing.hobbyist.tag">Populaire</div>
       <div class="plan-name" data-i18n="pricing.hobbyist.name">Hobbyist</div>
       <div class="plan-desc" data-i18n="pricing.hobbyist.desc">Pour le joueur sérieux qui monte en stakes.</div>
-      <div class="plan-price" data-i18n="pricing.hobbyist.price">3,99€</div>
-      <div class="plan-period" data-i18n="pricing.hobbyist.period">par mois · annule à tout moment</div>
-      <a class="plan-btn hobby-btn" onclick="goToCheckout('hobbyist')" data-i18n="pricing.hobbyist.cta">Choisir Hobbyist →</a>
+      <div class="plan-price"><span class="price-monthly" data-billing="monthly">3,99€</span><span class="price-annual" data-billing="annual" style="display:none">38€</span></div>
+      <div class="plan-period"><span data-billing="monthly">par mois · annule à tout moment</span><span data-billing="annual" style="display:none">par an · 3,17€/mois équivalent</span></div>
+      <a class="plan-btn hobby-btn" onclick="goToCheckout('hobbyist')" data-i18n="pricing.hobbyist.cta">Essai 14 jours →</a>
       <div class="plan-features">
         <div class="pf">Toutes les 8 positions</div>
         <div class="pf">100bb + 40bb stack depths</div>
@@ -417,9 +428,9 @@ footer{padding:48px 56px 28px;border-top:1px solid rgba(255,255,255,.06);backgro
       <div class="plan-tag" data-i18n="pricing.regular.tag">Plus populaire</div>
       <div class="plan-name" data-i18n="pricing.regular.name">Regular</div>
       <div class="plan-desc" data-i18n="pricing.regular.desc">Le grinder discipliné qui ne loupe rien.</div>
-      <div class="plan-price" data-i18n="pricing.regular.price">9,99€</div>
-      <div class="plan-period" data-i18n="pricing.regular.period">par mois · annule à tout moment</div>
-      <a class="plan-btn pro-btn" onclick="goToCheckout('regular')" data-i18n="pricing.regular.cta">Choisir Regular →</a>
+      <div class="plan-price"><span class="price-monthly" data-billing="monthly">9,99€</span><span class="price-annual" data-billing="annual" style="display:none">96€</span></div>
+      <div class="plan-period"><span data-billing="monthly">par mois · annule à tout moment</span><span data-billing="annual" style="display:none">par an · 8€/mois équivalent</span></div>
+      <a class="plan-btn pro-btn" onclick="goToCheckout('regular')" data-i18n="pricing.regular.cta">Essai 14 jours →</a>
       <div class="plan-features">
         <div class="pf">Tout Hobbyist +</div>
         <div class="pf">20bb push/fold (MTT short)</div>
@@ -648,14 +659,31 @@ async function forgotPassword(){
   showSuccess('Email envoyé. Vérifie ta boîte (et les spams).');
 }
 
+// Billing toggle (monthly / annual)
+let currentBilling = 'monthly';
+function applyBilling(b){
+  currentBilling = b;
+  document.querySelectorAll('#billing-toggle button').forEach(btn => btn.classList.toggle('active', btn.dataset.billing === b));
+  document.querySelectorAll('[data-billing]').forEach(el => {
+    if (el.tagName === 'BUTTON') return;
+    el.style.display = el.dataset.billing === b ? '' : 'none';
+  });
+}
+document.querySelectorAll('#billing-toggle button').forEach(btn => btn.onclick = () => applyBilling(btn.dataset.billing));
+
 async function goToCheckout(plan){
-  const priceId = plan === 'hobbyist' ? window.STRIPE_PRICE_HOBBYIST : window.STRIPE_PRICE_REGULAR;
+  let priceId;
+  if (currentBilling === 'annual') {
+    priceId = plan === 'hobbyist' ? window.STRIPE_PRICE_HOBBYIST_ANNUAL : window.STRIPE_PRICE_REGULAR_ANNUAL;
+  } else {
+    priceId = plan === 'hobbyist' ? window.STRIPE_PRICE_HOBBYIST : window.STRIPE_PRICE_REGULAR;
+  }
   const sb=getSupa();
   let userId=null,email=null;
   if(sb){const{data:{session}}=await sb.auth.getSession();if(session){userId=session.user.id;email=session.user.email;}}
   if(!userId){openModal('signup');return;}
   try{
-    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email,priceId,plan})});
+    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email,priceId,plan,billing:currentBilling})});
     const{url,error}=await res.json();
     if(error)throw new Error(error);
     window.location.href=url;

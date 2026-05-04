@@ -6,8 +6,11 @@ window.SUPABASE_URL = 'https://uqeqbjkgfsmqjakuotfy.supabase.co';
 window.SUPABASE_ANON_KEY = 'sb_publishable_BWii913uFJLpQNvIuu0tCQ_NrRPp2x_';
 
 // Stripe price IDs (Live mode)
-window.STRIPE_PRICE_HOBBYIST = 'price_1TS99LLqC6EEycUgKIGUwTwL'; // €3.99/mo
-window.STRIPE_PRICE_REGULAR  = 'price_1TRg2nLqC6EEycUgd0TXBiua'; // €9.99/mo
+window.STRIPE_PRICE_HOBBYIST         = 'price_1TS99LLqC6EEycUgKIGUwTwL'; // €3.99/mo
+window.STRIPE_PRICE_REGULAR          = 'price_1TRg2nLqC6EEycUgd0TXBiua'; // €9.99/mo
+window.STRIPE_PRICE_HOBBYIST_ANNUAL  = 'price_1TTOHULqC6EEycUgvrfcibrH'; // €38/year (-21%)
+window.STRIPE_PRICE_REGULAR_ANNUAL   = 'price_1TTOHXLqC6EEycUgMeZAQjX3'; // €96/year (-20%)
+window.TRIAL_DAYS = 14; // 14-day free trial on all paid plans
 
 // Plan capabilities (kept client-side for paywall checks; truth lives in Supabase via webhook)
 window.PLANS = {

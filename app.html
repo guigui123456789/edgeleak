@@ -230,6 +230,84 @@ main{overflow-y:auto;padding:32px 40px;background:var(--felt-900)}
 .btn-inline.gold{background:var(--gold-500);color:var(--ink-900);border-color:var(--gold-500);font-weight:500}
 .btn-inline.gold:hover{background:var(--gold-400)}
 
+/* MODULE GTO */
+@keyframes cardDeal{from{opacity:0;transform:translateY(-8px) rotate(-4deg)}to{opacity:1;transform:translateY(0) rotate(0)}}
+@keyframes scoreUp{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.gto-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+@media(max-width:900px){.gto-stats{grid-template-columns:1fr 1fr}}
+.gto-stat-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px;text-align:center}
+.gto-stat-v{font-family:var(--serif);font-style:italic;font-size:32px;color:var(--gold-500);line-height:1;margin-bottom:6px}
+.gto-stat-l{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.5)}
+.gto-levels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.gto-level-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:24px;cursor:pointer;transition:all .2s}
+.gto-level-card:hover:not(.locked){transform:translateY(-3px);border-color:var(--gold-500);box-shadow:0 12px 32px rgba(212,175,55,.1)}
+.gto-level-card.completed{border-color:rgba(212,175,55,.3);background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(255,255,255,.03))}
+.gto-level-card.locked{opacity:.5;cursor:not-allowed}
+.gto-level-card.revision{background:linear-gradient(135deg,rgba(180,55,40,.08),rgba(255,255,255,.03));border-color:rgba(180,55,40,.2)}
+.gto-level-num{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--carmine-500);margin-bottom:8px}
+.gto-level-title{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--cream-50);margin-bottom:8px;letter-spacing:-.01em}
+.gto-level-concept{font-family:var(--body);font-size:14px;color:rgba(255,255,255,.7);line-height:1.5;margin-bottom:16px;min-height:42px}
+.gto-level-cta{font-family:var(--sans);font-size:12px;color:var(--gold-500);font-weight:500;display:inline-flex;align-items:center;gap:4px}
+.gto-level-cta.done{color:var(--gold-500)}
+.gto-level-cta.locked{color:rgba(255,255,255,.4)}
+.gto-back{background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-family:var(--sans);font-size:13px;margin-bottom:18px;padding:6px 0}
+.gto-back:hover{color:var(--cream-50)}
+.gto-level-detail{max-width:760px}
+.gto-level-eyebrow{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--carmine-500);margin-bottom:10px}
+.gto-level-h2{font-family:var(--serif);font-style:italic;font-size:42px;color:var(--cream-50);margin-bottom:14px;letter-spacing:-.02em;line-height:1.05}
+.gto-level-concept-big{font-family:var(--body);font-size:18px;color:rgba(255,255,255,.8);line-height:1.55;margin-bottom:32px}
+.gto-explainer{background:rgba(255,255,255,.03);border-left:3px solid var(--gold-500);padding:18px 22px;border-radius:8px;margin-bottom:24px}
+.gto-explainer h3{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--gold-500);margin-bottom:10px;font-weight:500}
+.gto-explainer p{font-family:var(--body);font-size:14px;color:rgba(255,255,255,.85);line-height:1.65}
+.gto-rangeview{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px;margin-bottom:28px}
+.gto-rangeview h3{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.5);margin-bottom:6px;font-weight:500}
+.gto-level-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.gto-btn{padding:13px 22px;border-radius:999px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:8px}
+.gto-btn:hover{transform:translateY(-1px)}
+.gto-btn-primary{background:var(--gold-500);color:var(--ink-900);font-weight:600}
+.gto-btn-primary:hover{background:var(--gold-400)}
+.gto-btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--cream-100)}
+.gto-btn-ghost:hover{background:rgba(255,255,255,.05)}
+
+/* QUIZ */
+.gto-quiz-bar{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.gto-quiz-progress{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.gto-quiz-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold-500),var(--carmine-500));transition:width .3s}
+.gto-quiz-counter{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.06em}
+.gto-quiz-table{background:radial-gradient(ellipse at center,rgba(0,0,0,.2),rgba(0,0,0,.4));border-radius:18px;padding:14px;margin-bottom:18px;border:1px solid rgba(255,255,255,.05)}
+.poker-table{width:100%;height:auto;max-width:680px;display:block;margin:0 auto}
+.gto-quiz-context{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--cream-50);text-align:center;margin-bottom:20px}
+.gto-quiz-actions{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.gto-action{padding:14px 28px;border-radius:999px;font-family:var(--sans);font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .15s;min-width:130px}
+.gto-action:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.gto-action:disabled{cursor:default;opacity:.5}
+.gto-action-green{background:#2ea043;color:white}
+.gto-action-red{background:#cf3b3b;color:white}
+.gto-action-blue{background:#3b82f6;color:white}
+.gto-action-gold{background:var(--gold-500);color:var(--ink-900)}
+.gto-action-gray{background:rgba(255,255,255,.1);color:var(--cream-100);border:1px solid rgba(255,255,255,.15)}
+.gto-action.answered-correct{background:#2ea043!important;color:white;opacity:1!important;box-shadow:0 0 0 3px rgba(46,160,67,.3)}
+.gto-action.answered-wrong{background:#cf3b3b!important;color:white;opacity:1!important}
+.gto-quiz-feedback{display:none;background:rgba(255,255,255,.05);border-radius:12px;padding:18px 22px;margin-top:8px;border-left:4px solid;animation:scoreUp .3s}
+.gto-quiz-feedback.show{display:flex;align-items:flex-start;gap:14px}
+.gto-quiz-feedback.correct{border-left-color:#2ea043}
+.gto-quiz-feedback.incorrect{border-left-color:#cf3b3b}
+.fb-icon{font-size:28px;font-family:var(--serif);font-weight:700;line-height:1}
+.gto-quiz-feedback.correct .fb-icon{color:#2ea043}
+.gto-quiz-feedback.incorrect .fb-icon{color:#cf3b3b}
+.fb-text{flex:1}
+.fb-verdict{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--cream-50);margin-bottom:4px}
+.fb-explain{font-family:var(--body);font-size:14px;color:rgba(255,255,255,.8);line-height:1.55}
+.fb-next{margin-left:auto;flex-shrink:0;align-self:center}
+
+/* RESULTS */
+.gto-results{text-align:center;padding:48px 24px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px}
+.gto-results-icon{font-size:56px;color:var(--gold-500);margin-bottom:18px;font-family:var(--serif);font-style:italic;animation:scoreUp .5s}
+.gto-results-score{font-family:var(--serif);font-style:italic;font-size:56px;color:var(--cream-50);line-height:1;margin-bottom:6px;letter-spacing:-.02em}
+.gto-results-pct{font-family:var(--mono);font-size:14px;color:var(--gold-500);margin-bottom:18px;letter-spacing:.08em}
+.gto-results-msg{font-family:var(--body);font-size:16px;color:rgba(255,255,255,.75);max-width:420px;margin:0 auto 28px;line-height:1.55}
+.gto-results-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
 .toast{position:fixed;bottom:20px;right:20px;background:var(--ink-900);color:var(--cream-50);padding:12px 20px;border-radius:10px;font-family:var(--sans);font-size:13px;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:all .25s}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.error{background:var(--carmine-600)}
@@ -264,6 +342,10 @@ main{overflow-y:auto;padding:32px 40px;background:var(--felt-900)}
       <button class="nav-item" data-page="saved" onclick="goTo('saved',this)">
         <svg viewBox="0 0 16 16" fill="none"><path d="M3 2h10v12l-5-3-5 3V2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
         Saved ranges
+      </button>
+      <button class="nav-item" data-page="gto" onclick="goTo('gto',this)">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+        Module GTO
       </button>
     </div>
   </div>
@@ -388,6 +470,18 @@ main{overflow-y:auto;padding:32px 40px;background:var(--felt-900)}
   <div id="saved-content"></div>
 </div>
 
+<!-- MODULE GTO -->
+<div class="page" id="page-gto">
+  <div class="page-eyebrow"><span class="dot"></span>Apprends le GTO étape par étape</div>
+  <div class="page-head">
+    <div>
+      <h1>Module <em>GTO</em></h1>
+      <p>Cinq niveaux progressifs pour comprendre les ranges. Termine chaque quiz à 80% pour débloquer le suivant. Reviens réviser quand tu veux.</p>
+    </div>
+  </div>
+  <div id="gto-content"></div>
+</div>
+
 <!-- SETTINGS -->
 <div class="page" id="page-settings">
   <div class="page-eyebrow"><span class="dot"></span>Settings</div>
@@ -491,6 +585,7 @@ main{overflow-y:auto;padding:32px 40px;background:var(--felt-900)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/config.js"></script>
 <script src="/ranges.js"></script>
+<script src="/gto-quiz.js"></script>
 <script>
 const RANKS = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
 function handLabel(r,c){if(r===c)return RANKS[r]+RANKS[c];if(r<c)return RANKS[r]+RANKS[c]+'s';return RANKS[c]+RANKS[r]+'o';}
@@ -651,7 +746,11 @@ function goTo(page,btn){
   document.getElementById('page-'+page).classList.add('active');
   if(btn)btn.classList.add('active');
   if(page==='saved')loadSavedRanges();
+  if(page==='gto'&&window.gtoQuiz)window.gtoQuiz.init();
 }
+// Expose for gto-quiz.js
+window.getSupa = getSupa;
+Object.defineProperty(window,'currentUser',{get:()=>currentUser});
 function showSettingsSection(s){
   document.querySelectorAll('.settings-nav-item').forEach(n=>n.classList.toggle('active',n.dataset.section===s));
   document.querySelectorAll('.settings-section').forEach(sec=>sec.classList.remove('active'));

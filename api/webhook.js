@@ -20,11 +20,15 @@ async function updateProfile(supaUrl, supaKey, userId, patch) {
   if (!res.ok) throw new Error(`Supabase patch failed: ${res.status} ${await res.text()}`);
 }
 
-// Map Stripe price ID → plan name
+// Map Stripe price ID → plan name (covers monthly + annual variants)
 function priceIdToPlan(priceId){
-  if (priceId === 'price_1TS99LLqC6EEycUgKIGUwTwL') return 'hobbyist';
-  if (priceId === 'price_1TRg2nLqC6EEycUgd0TXBiua') return 'regular';
-  return null;
+  const map = {
+    'price_1TS99LLqC6EEycUgKIGUwTwL': 'hobbyist', // €3.99/mo
+    'price_1TRg2nLqC6EEycUgd0TXBiua': 'regular',  // €9.99/mo
+    'price_1TTOHULqC6EEycUgvrfcibrH': 'hobbyist', // €38/year
+    'price_1TTOHXLqC6EEycUgMeZAQjX3': 'regular',  // €96/year
+  };
+  return map[priceId] || null;
 }
 
 export default async function handler(req, res) {
