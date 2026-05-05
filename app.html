@@ -831,7 +831,8 @@ function refresh(){
 function renderPaywall(lockType){
   const reasons={position:'Cette position est dans le plan Hobbyist.',stack:'Cette profondeur de tapis (20bb) demande Regular.',situation:'Cette situation est dans le plan supérieur.'};
   const showHobby=lockType!=='stack';
-  return `<div class="paywall"><div class="seal">EDGE</div><h3>Unlock the full library.</h3><p>${reasons[lockType]||''} Choisis le plan qui correspond à ton volume d'étude.</p><div class="paywall-actions">${showHobby?'<button class="paywall-btn ghost" onclick="goToCheckout(\\'hobbyist\\')">Hobbyist · 3,99€/mo</button>':''}<button class="paywall-btn gold" onclick="goToCheckout('regular')">Regular · 9,99€/mo →</button></div></div>`;
+  const hobbyBtn = showHobby ? `<button class="paywall-btn ghost" onclick="goToCheckout('hobbyist')">Hobbyist · 3,99€/mo</button>` : '';
+  return `<div class="paywall"><div class="seal">EDGE</div><h3>Unlock the full library.</h3><p>${reasons[lockType]||''} Choisis le plan qui correspond à ton volume d'étude.</p><div class="paywall-actions">${hobbyBtn}<button class="paywall-btn gold" onclick="goToCheckout('regular')">Regular · 9,99€/mo →</button></div></div>`;
 }
 
 function clearBuilder(){if(mode!=='build')return;currentBuilder={};renderMatrix();}
